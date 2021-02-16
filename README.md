@@ -17,3 +17,9 @@ docker-compose down --volume
 http://localhost/admin/
 
 http://localhost/polls/
+
+
+~~~sh
+python manage.py runserver
+~~~
+http://127.0.0.1:8000/apmall/item2vec/sample/test
