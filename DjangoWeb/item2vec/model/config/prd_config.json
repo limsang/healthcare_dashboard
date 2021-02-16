@@ -1,0 +1,71 @@
+{
+    "DEVELOP" : {
+        "MODEL" : {
+            "DEVICE_TYPE" : "cpu",
+            "DATALOADER_WORKERS" : 0,
+            "TOTAL_EPOCH" : 1,
+            "BATCH_SIZE" : 256,
+            "TRAINING_LOG_PER_ITERATION" : 50,
+            "LEARNING_RATE" : 5e-3,
+            "WINDOW_SIZE" : 5,
+            "NEGATIVE_PAIR_COUNT" : 5,
+            "EMBEDDING_DIMENSION" : 300,
+            "TRAIN_DATA_PATH" : "dataset/",
+            "TRAIN_DATA_ITEMS_NAME" : "items.csv",
+            "TRAIN_DATA_USERS_NAME" : "users.csv",
+            "MODEL_SAVE_PATH" : "model_output",
+            "MODEL_LOAD_PATH" : "model_output",
+            "MODEL_LOG_PATH" : "logs",
+            "TENSORBOARD_PATH" : "tensorboard_log",
+            "EARLYSTOPPING_PATIENCE_COUNT" : 7,
+            "EARLYSTOPPING_DELTA" : 0.0,
+            "RECOMMENDATION_LIST_PATH" : "model_output",
+            "RECOMMENDATION_LIST_NAME" : "item2vec_recommend_list.csv",
+            "RECOMMENDATION_LIST_NAME_API" : "item2vec_recommend_list_api.csv"
+        },
+        "TERRAFORM" : {
+            "WORKING_DIRECTORY" : "terraform-mzc/apply"
+        },
+        "AWS" : {
+            "S3" : {
+                "TRAIN_DATA_BUCKET" : "apdata-rnd-model-data",
+                "TRAIN_DATA_PREFIX" : "item2vec/train_data", 
+                "MODEL_OUTPUT_BUCKET" : "apdata-rnd-model-data",
+                "RECSYS_RESULT_BUCKET" : "s3://item2item-share.apglobal.com/emr/Item2Vec/model_output"
+            },
+            "EMR" : {
+                "TRAIN_ETL" : {
+                    "JOB_NAME" : "WEBLOG_ITEM2VEC_TRAINETL",
+                    "SHELL" : "s3://apdata-rnd-service/emr/scala/WebLog_ItemsUsersCSV/recsys_item2vec_trainETL.sh",
+                    "EMR_BUCKET_NAME" : "apdata-rnd-service",
+                    "SOURCE_BUCKET" : "s3://prod-ap-cdp-log/db_weblog/database/tb_recommend_raw/",
+                    "TARGET_BUCKET" : "s3://apdata-rnd-model-data",
+                    "TARGET_PATH" : "item2vec/train_data",
+                    "DAYS_AGO" : 7
+                },
+                "JOBFLOW_ROLE_ARN" : "RND-Recsys-Airflow-EMR-Role",
+                "SERVICE_ROLE_ARN" : "RND-Recsys-Airflow-EMR-Service-Role",
+                "LOG_URL" : {
+                    "BUCKET_NAME" : "apdata-rnd-service",
+                    "PATH" : "recsys/emr/log"
+                },
+                "SUBNET_ID" : "subnet-029cb621a63e11153",
+                "RELEASE_LABEL" : "emr-5.25.0",
+                "MASTER_INSTANCE_TYPE" : "m4.large",
+                "MASTER_INSTANCE_COUNT" : 1,
+                "MASTER_SECURITYGROUP" : "sg-0c0a6d5cb6090fdd1",
+                "SLAVE_INSTANCE_TYPE" : "m4.large",
+                "SLAVE_INSTANCE_COUNT" : 2,
+                "SLAVE_SECURITYGROUP" : "sg-001862b822b075068",
+                "SERVICE_SECURITYGROUP" : "sg-05afc58f29cc03846"
+            },
+            "CODE_PIPELINE" : {
+                "NAME" : "ap-pipe-recsys-airflow-docker"
+            },
+            "CLOUD_WATCH" : {
+                "LOG_GROUPS" : "ap-pipe-recsys-airflow-docker"
+            }
+        }
+
+    }
+}

@@ -1,0 +1,10 @@
+name: AP-RND-RECSYS
+
+entry_points:
+  main:
+    command: "python mlflow_tutorial.py"
+  train:
+    command: "python mlflow_tutorial.py"
+  serve:
+    command: "python mlflow_tutorial.py"
+
