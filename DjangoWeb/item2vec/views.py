@@ -25,7 +25,7 @@ class post_test(APIView):
         dummy_data = {
             'name': 'aaaaa',
             'type': 'bbbbb',
-            'job': 'ccccccc',
+            'job': request,
             'age': 5
         }
 

@@ -7,9 +7,6 @@ from elasticsearch import Elasticsearch
 from es_pandas import es_pandas
 import sys
 
-# instantiate elastic search
-# es = Elasticsearch('192.168.0.7:9200')
-
 # functions to convert UTC to Shanghai time zone and extract date/time elements
 convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('America/Los_Angeles'))
 get_year = lambda x: convert_tz(x).year
@@ -20,18 +17,19 @@ get_hour = lambda x: convert_tz(x).hour
 get_minute = lambda x: convert_tz(x).minute
 get_day_of_week = lambda x: convert_tz(x).weekday()
 
-
 class HealthDataExtractor(object):
+
  def __init__(self):
 
   self.ES_PORT = '9200'
   self.IP = '192.168.0.7'
-  self.es = Elasticsearch('192.168.0.7:9200')
-  self.TYPE = 'record'
 
-  self.es_host = 'localhost:9200'
-  # crete es_pandas instance
-  self.ep = es_pandas(self.es_host)
+  self.es = Elasticsearch(f"{self.IP}:{self.ES_PORT}", verify_certs=True)
+  if not self.es.ping():
+   raise ValueError("Connection failed")
+
+  self.TYPE = 'record'
+  self.ep = es_pandas(f"{self.IP}:{self.ES_PORT}")
 
 
  def check_and_generate_index(self, INDEX):
@@ -193,4 +191,5 @@ class HealthDataExtractor(object):
 
 if __name__ == '__main__':
     handler = HealthDataExtractor()
-    handler.gen_resting_index()
+
+    handler.gen_heartRate_index()
