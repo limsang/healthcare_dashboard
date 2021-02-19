@@ -12,7 +12,14 @@ import time
 import datetime
 from elasticsearch import Elasticsearch, RequestError
 
-es = Elasticsearch('192.168.0.11:9200')
+es = Elasticsearch('192.168.0.7:9200')
+
+
+
+class react_test(APIView):
+    def get(self, request, format=None):
+        response = {"state": 200}
+        return JsonResponse(response, content_type=u"application/json; charset=utf-8")
 
 
 class create_index(APIView):
@@ -29,14 +36,14 @@ class create_index(APIView):
 
         else:
             try:
-                with open('../static/item2item/mapping2.json', 'r') as f:
+                with open('./static/item2item/mapping2.json', 'r') as f:
                     mapping = json.load(f)
 
                 res = es.indices.create(index=index_nm, body=mapping)
             except RequestError as es1:
                 print('Index already exists!!', type(es1))
 
-        response = {"state": res}
+        response = {"state": 200}
         return JsonResponse(response, content_type=u"application/json; charset=utf-8")
 
 class update_index(APIView):

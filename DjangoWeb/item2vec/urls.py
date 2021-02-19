@@ -18,7 +18,7 @@ urlpatterns = [
     path('create_index/<str:index_nm>', views.create_index.as_view()),
     path('update_index/<str:index_nm>', views.update_index.as_view()),
     path('delete_index/<str:index_nm>', views.delete_index.as_view()),
-
+    path('', views.react_test.as_view()),
 
     # path('hello', views.detail.as_view()),
     # question_id라는 이름의 파라미터로 들어가야함
