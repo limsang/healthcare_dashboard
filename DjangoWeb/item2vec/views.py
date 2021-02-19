@@ -29,7 +29,7 @@ class create_index(APIView):
 
         else:
             try:
-                with open('mapping2.json', 'r') as f:
+                with open('../static/item2item/mapping2.json', 'r') as f:
                     mapping = json.load(f)
 
                 res = es.indices.create(index=index_nm, body=mapping)
