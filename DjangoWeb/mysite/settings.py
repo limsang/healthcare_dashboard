@@ -27,8 +27,8 @@ DEBUG = False
 # DEBUG = os.environ.get('DEBUG', False)
 
 # open to all
-# ALLOWED_HOSTS = ['*', '0.0.0.0', 'loadbalancer', 'web_app']
-ALLOWED_HOSTS = [os.environ.get('HOST', '*'), ]
+ALLOWED_HOSTS = ['*', '0.0.0.0', 'loadbalancer', 'web_app']
+# ALLOWED_HOSTS = [os.environ.get('HOST', '*'), ]
 API_HOST = os.environ.get('API_HOST', 'localhost:8000')
 
 # USE_X_FORWARDED_HOST=True
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'item2vec',
     'mysite',
+    'corsheaders',
 ]
 
 
@@ -56,7 +57,35 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+
+##CORS
+CORS_ORIGIN_ALLOW_ALL=True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+)
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+)
+
 
 ROOT_URLCONF = 'mysite.urls'
 
