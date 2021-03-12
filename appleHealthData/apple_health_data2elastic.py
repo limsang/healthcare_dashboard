@@ -31,7 +31,6 @@ class HealthDataExtractor(object):
   self.TYPE = 'record'
   self.ep = es_pandas(f"{self.IP}:{self.ES_PORT}")
 
-
  def check_and_generate_index(self, INDEX):
   if self.es.indices.exists(INDEX):
    self.es.indices.delete(INDEX)
@@ -59,7 +58,6 @@ class HealthDataExtractor(object):
 
   INDEX = 'steps'
   self.check_and_generate_index(INDEX)
-
 
   # Add mapping
   with open('apple_health_elastic_mapping.json') as json_mapping:
@@ -148,7 +146,7 @@ class HealthDataExtractor(object):
  def gen_workOut_index(self):
   Workout = pd.read_csv("data/Workout.csv")
 
-  # parse out date and time elements as Shanghai time
+  # parse out date and time elements as seoul time
   Workout['startDate'] = pd.to_datetime(Workout['startDate'])
   Workout['year'] = Workout['startDate'].map(get_year)
   Workout['month'] = Workout['startDate'].map(get_month)
@@ -164,32 +162,47 @@ class HealthDataExtractor(object):
 
   cardio_mask=Workout['totalDistance']>0
   weight_trainig_mask=Workout['totalDistance'] == 0
+
+  # 체력운동과 근력을 분리
   CardioWorkout = Workout[cardio_mask]
   weight_training= Workout[weight_trainig_mask]
+  # 운동강도 추가
+  weight_training['ExerciseIntensity'] = round(weight_training['totalEnergyBurned'] / weight_training['duration'])
+  CardioWorkout['ExerciseIntensity'] = round(CardioWorkout['totalEnergyBurned'] / CardioWorkout['duration'])
+  CardioWorkout['date'] = pd.to_datetime(CardioWorkout['date'])
+  CardioWorkout = CardioWorkout[['date', 'weekday', 'duration', 'totalEnergyBurned', 'ExerciseIntensity']]
+  CardioWorkout = CardioWorkout.set_index('date')
 
-  CARDIO_INDEX = 'cardioworkout'
+  cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-  self.check_and_generate_index(CARDIO_INDEX)
+  gymTraining = weight_training
+  gymTraining['date'] = pd.to_datetime(weight_training['date'])
+  gymTraining = gymTraining[['date', 'weekday', 'duration', 'totalEnergyBurned', 'ExerciseIntensity']]
+  gymTraining = gymTraining.set_index('date')
+
+  # 요일별 운동량을 측정한다.
+  gymTrainingPerWeekday = gymTraining[['duration', 'totalEnergyBurned', 'ExerciseIntensity']].groupby(gymTraining['weekday'])
+  gymTrainingPerWeekday = gymTrainingPerWeekday.mean().reindex(cats)
+  # 인덱스를 일반 컬럼으로 이동
+  gymTrainingPerWeekday = gymTrainingPerWeekday.reset_index()
+  self.dataframe_to_es(CardioWorkout, 'cardioworkout', 'apple_health_elastic_cardio_workout_mapping.json')
+  self.dataframe_to_es(gymTraining, 'weighttraining', 'apple_health_elastic_workout_mapping.json')
+  self.dataframe_to_es(gymTrainingPerWeekday, 'weighttraining_week', 'apple_health_elastic_workout_week_mapping.json')
+
+ def dataframe_to_es(self, dataframe, index_name, mapping_json):
+  INDEX = index_name
+  self.check_and_generate_index(INDEX)
 
   # Add mapping
-  with open('apple_health_elastic_workout_mapping.json') as json_mapping:
+  with open(mapping_json) as json_mapping:
    d = json.load(json_mapping)
 
   # Create Customized Index Mappings
-  self.es.indices.put_mapping(index=CARDIO_INDEX, doc_type=self.TYPE, body=d, include_type_name=True)
+  self.es.indices.put_mapping(index=INDEX, doc_type=self.TYPE, body=d, include_type_name=True)
   # Example of write data to es, use the template you create
-  self.ep.to_es(CardioWorkout, CARDIO_INDEX, doc_type=self.TYPE)
-
-  MUSCULAR_INDEX = 'weighttraining'
-
-  self.check_and_generate_index(MUSCULAR_INDEX)
-
-  # Create Customized Index Mappings
-  self.es.indices.put_mapping(index=MUSCULAR_INDEX, doc_type=self.TYPE, body=d, include_type_name=True)
-  # Example of write data to es, use the template you create
-  self.ep.to_es(weight_training, MUSCULAR_INDEX, doc_type=self.TYPE)
+  self.ep.to_es(dataframe, INDEX, doc_type=self.TYPE)
 
 if __name__ == '__main__':
     handler = HealthDataExtractor()
-
-    handler.gen_heartRate_index()
+    # handler.gen_heartRate_index()
+    handler.gen_workOut_index()

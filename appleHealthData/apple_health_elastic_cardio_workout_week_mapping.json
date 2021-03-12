@@ -10,19 +10,20 @@
           }
         }
       },
-      "date" : {
-        "type" : "date"
-      },
+
       "duration" : {
+        "type" : "double"
+      },
+      "totalDistance" : {
+        "type" : "double"
+      },
+      "totalEnergyBurned" : {
         "type" : "double"
       },
       "ExerciseIntensity" : {
         "type" : "double"
       },
 
-      "totalEnergyBurned" : {
-        "type" : "double"
-      },
       "weekday" : {
         "type" : "keyword"
       }

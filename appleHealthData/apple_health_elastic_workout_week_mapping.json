@@ -10,9 +10,7 @@
           }
         }
       },
-      "date" : {
-        "type" : "date"
-      },
+
       "duration" : {
         "type" : "double"
       },

@@ -27,8 +27,8 @@ DEBUG = False
 # DEBUG = os.environ.get('DEBUG', False)
 
 # open to all
-ALLOWED_HOSTS = ['*', '0.0.0.0', 'loadbalancer', 'web_app']
-# ALLOWED_HOSTS = [os.environ.get('HOST', '*'), ]
+# ALLOWED_HOSTS = ['*', '0.0.0.0', 'loadbalancer', 'web_app']
+ALLOWED_HOSTS = [os.environ.get('HOST', '*'), "web"]
 API_HOST = os.environ.get('API_HOST', 'localhost:8000')
 
 # USE_X_FORWARDED_HOST=True
