@@ -19,13 +19,23 @@ json 파일로 관리중...
 - 2021-03-01 기준으로 운동과관련된 mapping이 추가됨.
 
 
-## stop.3 (optional)
+## step.3 (optional) ndjson파일을 통해 키바나 대시보드를 작성하기 
 1. Step 7: Select the button for "Create index pattern" and then type in the name of one of your indexes like steps and hit "Next Step."
 2. Step 8: Then use the time field option and select date and hit "Create index pattern."
 3. Repeat 6-8 to create additional index patterns for hr and resting_hr.
-4. Step 9: Navigate to the menu item Saved Objects under Kibana.
-5. Step 10: Select option for Import and either drag and drop or select the file apple_health_elastic_dashboard.ndjson which will create a few sample charts and an Apple Health Dashboard which you can view in Kibana and looks something like this:
+4. Step 9: Navigate to the menu item "Saved Objects" under Kibana.
+5. Step 10: Select option for Import and either drag and drop or select the file apple_health_elastic_dashboard.ndjson which will create a few sample charts and an Apple Health Dashboard which you can view in Kibana.
 
+### 이게뭐냐....??
+* 미리 작성한 대시보드가 있다면, 이걸 export해서 나중에 동일한 포맷의 대시보드를 생성할수있게 해주는 작업
+1. 키바나의 Saved Object로 이동 
+2. 저장한 대시보드를 선택
+3. Export를 클릭하면 ndjson 파일을 다운받을 수 있다.
+4. 앞의 가이드대로 인덱스패턴을 생성한 후 Import하면 대시보드를 볼 수 있음.
+
+
+
+https://support.logz.io/hc/en-us/articles/210207225-How-can-I-export-import-Dashboards-Searches-and-Visualizations-from-my-own-Kibana-
 
 
 # 2.  Django Web App
