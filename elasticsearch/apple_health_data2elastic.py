@@ -60,7 +60,7 @@ class HealthDataExtractor(object):
   self.check_and_generate_index(INDEX)
 
   # Add mapping
-  with open('apple_health_elastic_mapping.json') as json_mapping:
+  with open('index_mappings/apple_health_elastic_mapping.json') as json_mapping:
    d = json.load(json_mapping)
 
   # Create Customized Index Mappings
@@ -95,7 +95,7 @@ class HealthDataExtractor(object):
   self.check_and_generate_index(INDEX)
 
   # Add mapping
-  with open('apple_health_elastic_mapping.json') as json_mapping:
+  with open('index_mappings/apple_health_elastic_mapping.json') as json_mapping:
    d = json.load(json_mapping)
 
   # Create Customized Index Mappings
@@ -133,7 +133,7 @@ class HealthDataExtractor(object):
   self.check_and_generate_index(INDEX)
 
   # Add mapping
-  with open('apple_health_elastic_mapping.json') as json_mapping:
+  with open('index_mappings/apple_health_elastic_mapping.json') as json_mapping:
    d = json.load(json_mapping)
 
   # Create Customized Index Mappings
