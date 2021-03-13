@@ -66,7 +66,7 @@ class HealthDataExtractor(object):
 
  def gen_step_index(self):
 
-  steps = self.create_dafareame_with_initial_columns("data/StepCount.csv")
+  steps = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/StepCount.csv")
   INDEX = 'steps'
   self.check_and_generate_index(INDEX)
 
@@ -82,7 +82,7 @@ class HealthDataExtractor(object):
 
  def gen_resting_index(self):
 
-  resting = self.create_dafareame_with_initial_columns("data/RestingHeartRate.csv")
+  resting = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/RestingHeartRate.csv")
 
   INDEX = 'resting_hr'
   self.check_and_generate_index(INDEX)
@@ -99,7 +99,7 @@ class HealthDataExtractor(object):
 
  def gen_heartRate_index(self):
 
-  hr = self.create_dafareame_with_initial_columns("data/HeartRate.csv")
+  hr = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/HeartRate.csv")
   INDEX = 'hr'
 
   self.check_and_generate_index(INDEX)
@@ -120,7 +120,7 @@ class HealthDataExtractor(object):
   workout csv를 통해 여러 타입의 운동관련 인덱스를 생성한다.
   :return: 유 무산소 운동기록에 대한 인덱스
   """
-  Workout = self.create_dafareame_with_initial_columns("data/Workout.csv")
+  Workout = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/Workout.csv")
   cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
   """
