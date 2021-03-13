@@ -18,7 +18,6 @@ get_hour = lambda x: convert_tz(x).hour
 get_minute = lambda x: convert_tz(x).minute
 get_day_of_week = lambda x: convert_tz(x).weekday()
 
-
 class HealthDataExtractor(object):
  def __init__(self):
   with open('config.json', 'r') as f:
