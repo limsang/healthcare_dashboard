@@ -124,6 +124,14 @@ class HealthDataExtractor(object):
   Workout = self.create_dafareame_with_initial_columns("data/Workout.csv")
   cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
+  """
+  요일별 운동횟수를 기록
+  
+  """
+  weekdayCount = Workout
+  weekdayCount = weekdayCount[['weekday']].groupby(weekdayCount['weekday'])
+
+
   #유산소 운동
   cardio_mask=Workout['totalDistance'] > 0
   CardioWorkout = Workout[cardio_mask]
