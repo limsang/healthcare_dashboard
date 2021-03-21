@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import gmplot
+import glob
+import sys
 from gpx_converter import Converter
 import os
 import haversine
@@ -16,11 +18,29 @@ class HealthDataExtractor(object):
 
     def __init__(self):
         LOCATION = "data/workout-routes/"
-        self.FILENAME = "route_2020-12-15_4.14pm.gpx"
-        self.gpx_file_name = LOCATION + "route_2020-12-15_4.14pm.gpx"
-        self.gpx = gpxpy.parse(open(self.gpx_file_name))
+        self.FILENAME = "route_2021-01-07_9.04pm.gpx"
+        self.gpx_file_name = LOCATION + self.FILENAME
+        self.gpxHandler = gpxpy.parse(open(self.gpx_file_name))
+        # self.gen_routeDF(self.gpxHandler, self.FILENAME)
+    def loop_genDF(self):
 
-    def gen_routeDF(self, gpx_files="dummy"):
+        """
+        모든 gpx 운동기록을 한꺼번에 저장하고 출력한다.
+        입력은 리스트 형태의 gpx 자료들..
+        :return:
+        """
+
+        path = "data/workout-routes/*"
+        file_list = glob.glob(path)
+        file_list = [file for file in file_list if file.endswith(".gpx")]
+
+        for gpxfileName in file_list:
+            self.gpxHandler = gpxpy.parse(open(gpxfileName))
+            self.gen_routeDF(self.gpxHandler, gpxfileName)
+
+        print('for generating all cardio workouts')
+
+    def gen_routeDF(self, gpxHandler, filename):
 
         """
         we need to create a variable that calculates our movement in meters per second
@@ -34,8 +54,9 @@ class HealthDataExtractor(object):
         dist_dif_hav_2d = [0]
         columns = ['Longitude', 'Latitude', 'Altitude', 'Time', 'Speed']
 
-        print("{} track(s)".format(len(self.gpx.tracks)))
-        track = self.gpx.tracks[0]
+        print("filename", filename)
+        print("{} track(s)".format(len(gpxHandler.tracks)))
+        track = gpxHandler.tracks[0]
 
         print("{} segment(s)".format(len(track.segments)))
         segment = track.segments[0]
@@ -48,8 +69,9 @@ class HealthDataExtractor(object):
             data.append([point.longitude, point.latitude, point.elevation,
                          point.time, segment.get_speed(point_idx)])
 
-
         df = DataFrame(data, columns=columns)
+
+
 
         # 이동거리 및 시간 계산
         for index in range(len(data)):
@@ -86,8 +108,19 @@ class HealthDataExtractor(object):
         df = df.replace([np.inf, -np.inf], np.nan)
         df = df.fillna(0)
 
+        # 수정후의 데이터프레임이 empty
+        if len(df.index) == 0:
+            print("empty dataframe!!")
+            return
+
         # 1키로미터 이동하는데에 걸리는 평균 시간
-        avg_km_h = (sum((df['speed_km_per_hour'] * df['time_dif'])) / sum(df['time_dif']))
+        try:
+            avg_km_h = (sum((df['speed_km_per_hour'] * df['time_dif'])) / sum(df['time_dif']))
+        except ZeroDivisionError as e:
+            print("error!!!!! ---", df['time_dif'])
+            print(df)
+            sys.exit()
+
         print("1키로미터 이동하는데에 걸리는 평균 시간", floor(60 / avg_km_h), 'minutes', round(((60 / avg_km_h - floor(60 / avg_km_h))*60), 0), ' seconds')
 
         # speed in km/h against the time in seconds.
@@ -97,8 +130,8 @@ class HealthDataExtractor(object):
         print('Haversine 2D : ', dist_hav_no_alt[-1]*0.001, "km")
         print('Haversine 3D : ', dist_hav[-1]*0.001, "km")
         print('Total Time : ', floor(sum(time_dif)/60),' min ', int(sum(time_dif)%60),' sec ')
-
-        self.draw_on_google_map(df)
+        print("----------------------------")
+        # self.draw_on_google_map(df)
 
     def draw_on_google_map(self, df):
         min_lat, max_lat, min_lon, max_lon = min(df['Latitude']), max(df['Latitude']), min(df['Longitude']), max(df['Longitude'])
@@ -110,4 +143,7 @@ class HealthDataExtractor(object):
 
 if __name__ == '__main__':
     handler = HealthDataExtractor()
-    handler.gen_routeDF()
+    # handler.gen_routeDF()
+    # path = "data/workout-routes"
+    handler.loop_genDF()
+

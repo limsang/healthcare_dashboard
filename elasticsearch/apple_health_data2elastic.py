@@ -18,6 +18,7 @@ get_hour = lambda x: convert_tz(x).hour
 get_minute = lambda x: convert_tz(x).minute
 get_day_of_week = lambda x: convert_tz(x).weekday()
 
+
 class HealthDataExtractor(object):
  def __init__(self):
   with open('config.json', 'r') as f:
@@ -42,7 +43,10 @@ class HealthDataExtractor(object):
   # Create index
   self.es.indices.create(INDEX)
 
- def create_dafareame_with_initial_columns(self, csv_path):
+ def create_dataframe_with_initial_columns(self, csv_path):
+  """
+  csv로 저장된 값을 df로 변환하는 역할
+  """
 
   df = pd.read_csv(csv_path)
 
@@ -66,7 +70,7 @@ class HealthDataExtractor(object):
 
  def gen_step_index(self):
 
-  steps = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/StepCount.csv")
+  steps = self.create_dataframe_with_initial_columns("data/Parsed_healthdata_csv_format/StepCount.csv")
   INDEX = 'steps'
   self.check_and_generate_index(INDEX)
 
@@ -82,7 +86,7 @@ class HealthDataExtractor(object):
 
  def gen_resting_index(self):
 
-  resting = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/RestingHeartRate.csv")
+  resting = self.create_dataframe_with_initial_columns("data/Parsed_healthdata_csv_format/RestingHeartRate.csv")
 
   INDEX = 'resting_hr'
   self.check_and_generate_index(INDEX)
@@ -99,7 +103,7 @@ class HealthDataExtractor(object):
 
  def gen_heartRate_index(self):
 
-  hr = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/HeartRate.csv")
+  hr = self.create_dataframe_with_initial_columns("data/Parsed_healthdata_csv_format/HeartRate.csv")
   INDEX = 'hr'
 
   self.check_and_generate_index(INDEX)
@@ -120,7 +124,7 @@ class HealthDataExtractor(object):
   workout csv를 통해 여러 타입의 운동관련 인덱스를 생성한다.
   :return: 유 무산소 운동기록에 대한 인덱스
   """
-  Workout = self.create_dafareame_with_initial_columns("data/healthdata_parse_result_in_csv/Workout.csv")
+  Workout = self.create_dataframe_with_initial_columns("data/Parsed_healthdata_csv_format/Workout.csv")
   cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
   """
@@ -174,6 +178,7 @@ class HealthDataExtractor(object):
   self.ep.to_es(dataframe, INDEX, doc_type=self.TYPE)
 
 if __name__ == '__main__':
+
     handler = HealthDataExtractor()
     handler.gen_heartRate_index()
     handler.gen_resting_index()
