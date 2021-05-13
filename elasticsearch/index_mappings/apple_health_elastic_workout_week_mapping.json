@@ -1,0 +1,29 @@
+{
+  "record" : {
+    "properties" : {
+      "creationDate" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+
+      "duration" : {
+        "type" : "double"
+      },
+      "ExerciseIntensity" : {
+        "type" : "double"
+      },
+
+      "totalEnergyBurned" : {
+        "type" : "double"
+      },
+      "weekday" : {
+        "type" : "keyword"
+      }
+    }
+  }
+}
