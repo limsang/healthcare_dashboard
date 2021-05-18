@@ -2,6 +2,19 @@
 헬스케어 대시보드
 
 
+# 실행방법
+## elk stack
+-> docker로 elk stack을 배포한다. 
+### 1.docker로 elk-stack 설치
+* elk-docker-stack으로 이동 후 docker-compose build && docker-compose up -d 실행
+* elk = 9200
+* kibana = 5601
+
+
+
+## Django Rest API
+## react frontend
+
 # Apple건강앱 Data ELK 연동
 https://github.com/markwk/qs_ledger/tree/master/apple_health
 
@@ -44,7 +57,6 @@ http://127.0.0.1:8000/apmall/item2vec/sample/test
 
 
 # elk stack
--> docker로 elk stack을 배포한다. 
 
 
 
