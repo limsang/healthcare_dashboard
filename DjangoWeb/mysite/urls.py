@@ -27,8 +27,9 @@ urlpatterns = [
     # http://127.0.0.1:8000/apmall/item2vec/sample/test
     # 앞에 apmall을 붙이고 다음에 오는 애들을 붙이면 응답하겠다.
     re_path(r'^apmall/', include(('item2vec.urls', 'item2vector'), namespace='apmall_item2vec_api')),
-    path('test/', include('item2vec.urls'))
 
+
+    # path('test/', include('item2vec.urls'))
     # re_path(r'^apmall/', include(('personalize.urls', 'psnl'), namespace='apmall_personalize_api')),
 ]
 

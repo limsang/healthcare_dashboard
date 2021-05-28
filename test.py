@@ -6,8 +6,8 @@ import time
 # Create your views here.
 import datetime
 from elasticsearch import Elasticsearch, RequestError
-es = Elasticsearch('192.168.0.7:9200')
-
+es = Elasticsearch('0.0.0.0:9200')
+print("test started!")
 
 if not es.ping():
     print("--- ES Connection failed --")

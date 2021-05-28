@@ -12,7 +12,9 @@ import time
 import datetime
 from elasticsearch import Elasticsearch, RequestError
 
-es = Elasticsearch('192.168.0.7:9200')
+es = Elasticsearch('0.0.0.0:9200')
+
+# ap local desktop 환경 10.160.39.117
 
 
 
@@ -23,6 +25,8 @@ class react_test(APIView):
 
 
 class create_index(APIView):
+
+    # def post(self):
     def get(self, request, index_nm, format=None):
 
         # check es connection status
@@ -33,6 +37,8 @@ class create_index(APIView):
         # create es index
         if es.indices.exists(index=str(index_nm)):
             print("--- existing index ---", index_nm)
+            response = {"state": 201,
+                        "comment": "existing index"}
 
         else:
             try:
@@ -40,10 +46,11 @@ class create_index(APIView):
                     mapping = json.load(f)
 
                 res = es.indices.create(index=index_nm, body=mapping)
+                response = {"state": 200}
             except RequestError as es1:
                 print('Index already exists!!', type(es1))
 
-        response = {"state": 200}
+
         return JsonResponse(response, content_type=u"application/json; charset=utf-8")
 
 class update_index(APIView):
@@ -112,7 +119,6 @@ class param1(APIView):
         content = {"param": pid}
 
         return JsonResponse(content, content_type=u"application/json; charset=utf-8")
-
 
 
 class postman_test(APIView):
