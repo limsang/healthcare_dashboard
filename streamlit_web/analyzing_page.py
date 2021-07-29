@@ -1,8 +1,13 @@
 import streamlit as st
 import pandas as pd
-
+import altair as alt
 from utils.utils import create_dataframe_with_initial_columns
+from utils.health_data_parser import HealthDataExtractor
+from xml.etree import ElementTree as ET
+import awesome_streamlit as ast
+import cv2 #pip install opencv-python
 
+import numpy as np
 from DFhandler.HeartRate import HeartRate
 from DFhandler.Workout import Workout
 from DFhandler.StepCount import StepCount
@@ -16,32 +21,62 @@ VALID_FILE_LIST = ['HeartRate.csv', 'BodyMass.csv', 'Workout.csv', 'StepCount.cs
  'AppleStandTime.csv']
 
 
+def uploadXML_saveCSV():
+    log_file_in_xml = st.file_uploader("Upload XML", type=['xml'])
+    if st.button("xml데이터 저장"):
+        XML_PATH = 'data/export.xml'
+        """
+        업로드한 파일을 지정된 경로로 복사한다.
+        """
+        if log_file_in_xml is not None:
+            tree = ET.parse(log_file_in_xml)
+            tree.write(XML_PATH)
+            del tree
+
+            data = HealthDataExtractor(XML_PATH)
+            data.report_stats()
+            data.extract()
+
+        else:
+            st.info("not an valid file")
+
 def Dataset():
+
     RHR_HANDLER = RestingHeartRate()
     Workout_HANDLER = Workout()
     StepCount_HANDLER = StepCount()
     HeartRate_HANDLER = HeartRate()
 
     tmp = None
-    st.subheader("Dataset")
+    c = None
+    st.title("XML 업로드")
+    st.info("추출한 XML 자료를 업로드한다")
+    uploadXML_saveCSV()
+    st.markdown("***")
+
+    st.title("그래프 조회")
+    st.markdown("-> 조회하고자 하는 데이터셋을 업로드 하여 분석결과를 조회한다")
     data_file = st.file_uploader("Upload CSV", type=['csv'])
 
-    if st.button("Process"):
+    if st.button("분석결과 조회"):
         if data_file is not None:
             if data_file.name in VALID_FILE_LIST:
-                st.write("valid file name")
-                # show file details
-                file_details = {"Filename": data_file.name, "FileType": data_file.type,"FileSize":data_file.size}
-                st.write(file_details)
                 df = pd.read_csv(data_file)
-                st.dataframe(df.head(10))
+                my_expander = st.beta_expander(label='csv details')
+
+                with my_expander:
+                    'Hello there!'
+                    file_details = {"Filename": data_file.name, "FileType": data_file.type,"FileSize":data_file.size}
+                    st.write(file_details)
+
+                st.markdown("")
+                st.markdown("")
 
                 # 업로드한 파일명을 기준으로 분석
-
                 if data_file.name == 'Workout.csv':
                     tmp = Workout_HANDLER.load_from_csv(df)
                     CardioWorkout, gymTraining, gymTrainingPerWeekday = Workout_HANDLER.preproc(tmp)
-                    st.dataframe(CardioWorkout.head(10))
+                    Workout_HANDLER.visualize(CardioWorkout, gymTraining, gymTrainingPerWeekday)
 
                 elif data_file.name == 'RestingHeartRate.csv':
                     tmp = RHR_HANDLER.load_from_csv(df)
@@ -58,5 +93,7 @@ def Dataset():
 
             else:
                 st.write("not an valid file name")
-
+        else:
+            st.info("should upload csv file first")
+    st.markdown("***")
 

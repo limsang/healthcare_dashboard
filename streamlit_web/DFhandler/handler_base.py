@@ -18,7 +18,7 @@ class BaseHandler(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def analysis(self):
+    def analysis_with_model(self):
         pass
 
     @abstractmethod
