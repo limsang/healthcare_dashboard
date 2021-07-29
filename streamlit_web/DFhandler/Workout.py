@@ -11,22 +11,49 @@ class Workout(BaseHandler):
         return _df
 
     def preproc(self, Workout):
+
+        def normalize(df, col):
+            result = df.copy()
+            for feature_name in df.columns:
+                max_value = df[col].max()
+                min_value = df[col].min()
+                result['norm_counts'] = (df[col] - min_value) / (max_value - min_value)
+            return result
+
         cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
         """
         요일별 운동횟수를 기록
 
         """
-        weekdayCount = Workout
-        weekdayCount = weekdayCount[['weekday']].groupby(weekdayCount['weekday'])
+        weekdayCount = Workout.groupby(['weekday']).size().reset_index(name='counts')
+        weekdayCount = normalize(weekdayCount, 'counts')
+
+
+        """
+        축구
+        """
+        Soccer_play_time = Workout.query('workoutActivityType =="HKWorkoutActivityTypeSoccer"')
+        Soccer_play_time = Soccer_play_time.groupby('date')[['duration', 'durationUnit', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
+        Soccer_play_time['intensity'] = Soccer_play_time['totalEnergyBurned'] / Soccer_play_time['duration'] * 10
+
 
         # 유산소 운동
-        cardio_mask = Workout['totalDistance'] > 0
-        CardioWorkout = Workout[cardio_mask]
-        CardioWorkout['ExerciseIntensity'] = round(CardioWorkout['totalEnergyBurned'] / CardioWorkout['duration'])
-        CardioWorkout['date'] = pd.to_datetime(CardioWorkout['date'])
-        CardioWorkout = CardioWorkout[['date', 'weekday', 'duration', 'totalEnergyBurned', 'ExerciseIntensity']]
-        CardioWorkout = CardioWorkout.set_index('date')
+        CardioWorkout = Workout.query('totalDistance > 0')
+        CardioWorkout = CardioWorkout.groupby('date')[['duration', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
+        CardioWorkout['intensity'] = CardioWorkout['totalEnergyBurned'] / CardioWorkout['duration'] * 10
+
+        """
+        헬스
+        """
+        StrengthTraining = Workout.query('workoutActivityType =="HKWorkoutActivityTypeTraditionalStrengthTraining"')
+        StrengthTraining = StrengthTraining.groupby(['date', 'weekday'])[['duration', 'totalEnergyBurned']].sum().reset_index()
+        StrengthTraining = StrengthTraining.drop_duplicates(['date'], keep='last')
+        StrengthTraining['avg_duration'] = StrengthTraining["duration"].mean()
+        StrengthTraining['duration_indicator'] = StrengthTraining["duration"] / StrengthTraining["avg_duration"]
+        StrengthTraining['intensity'] = StrengthTraining['duration_indicator'] * StrengthTraining['totalEnergyBurned']/StrengthTraining['duration']
+
+        StrengthTraining_week = StrengthTraining.groupby(by=['weekday'], as_index=False).mean()
 
         # 무산소 운동
         weight_trainig_mask = Workout['totalDistance'] == 0
@@ -45,22 +72,94 @@ class Workout(BaseHandler):
         # 인덱스를 일반 컬럼으로 이동
         gymTrainingPerWeekday = gymTrainingPerWeekday.reset_index()
 
-        return CardioWorkout, gymTraining, gymTrainingPerWeekday
+        return weekdayCount, StrengthTraining, StrengthTraining_week, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday
 
     def analysis_with_model(self):
         pass
 
-    def visualize(self, CardioWorkout, gymTraining, gymTrainingPerWeekday):
+    def visualize(self, weekdayCount, StrengthTraining, StrengthTraining_week, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday):
 
-        CardioWorkoutChart = alt.Chart(CardioWorkout, title="This is CardioWorkout"). \
-            mark_circle(). \
-            encode(x=alt.X('weekday', sort=[ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
-                   y='ExerciseIntensity',
-                   size='totalEnergyBurned',
-                   color=alt.condition(alt.datum.ExerciseIntensity > 5,
-                                       alt.value('red'), alt.value('greed'))). \
-            configure_axis(grid=False, titleFontSize=20). \
-            configure_view(strokeWidth=0).configure_title(fontSize=24)
+        weekdayCount_Chart = alt.Chart(weekdayCount).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear',
+            stops=[alt.GradientStop(color='white', offset=0), alt.GradientStop(color='darkgreen', offset=1)])).encode(
+            x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
+            y='counts')
+
+        weekdayCount_Chart.title = "요일별 운동 횟수"
+        weekdayCount_Chart.encoding.x.title = "요일"
+        weekdayCount_Chart.encoding.y.title = "횟수"
+        """
+        soccer play time
+        """
+        Soccer_play_time_chart = alt.Chart(Soccer_play_time).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear', stops=[alt.GradientStop(color='white', offset=0), alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='duration')
+
+        # Chart = alt.Chart(HKWorkoutActivityTypeSoccer).mark_line().encode(x='date', y='duration')
+        Soccer_play_time_chart.title = "플레이타임"
+        Soccer_play_time_chart.encoding.x.title = "timeline"
+        Soccer_play_time_chart.encoding.y.title = "duration(min)"
+
+        """
+        soccer play distance
+        """
+        Soccer_play_distance = alt.Chart(Soccer_play_time).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear', stops=[alt.GradientStop(color='white', offset=0),alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='totalDistance')
+
+        # Chart = alt.Chart(HKWorkoutActivityTypeSoccer).mark_line().encode(x='date', y='duration')
+        Soccer_play_distance.title = "뛴 거리"
+        Soccer_play_distance.encoding.x.title = "timeline"
+        Soccer_play_distance.encoding.y.title = "Distance(km)"
+        """
+        soccer play intensity
+        """
+        Soccer_play_intensity = alt.Chart(Soccer_play_time).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear',stops=[alt.GradientStop(color='white', offset=0), alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='intensity')
+
+        Soccer_play_intensity.title = "플레이 강도"
+        Soccer_play_intensity.encoding.x.title = "timeline"
+        Soccer_play_intensity.encoding.y.title = "강도 (칼로리 소모/거리)"
+
+        """
+        헬스
+        """
+        StrengthTraining_intensity = alt.Chart(StrengthTraining).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear',
+            stops=[alt.GradientStop(color='white', offset=0),
+                   alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='intensity')
+
+        StrengthTraining_intensity.title = "헬스 강도"
+        StrengthTraining_intensity.encoding.x.title = "timeline(Y-M-D)"
+        StrengthTraining_intensity.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
+
+        StrengthTraining_week_duration = alt.Chart(StrengthTraining_week).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(gradient='linear',
+                                                   stops=[alt.GradientStop(color='white', offset=0),
+                                                  alt.GradientStop(color='darkgreen', offset=1)])).encode(x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']), y='duration')
+
+        StrengthTraining_week_duration.title = "요일별 평균 운동지속시간"
+        StrengthTraining_week_duration.encoding.x.title = "요일"
+        StrengthTraining_week_duration.encoding.y.title = "운동시간(min)"
+
+        StrengthTraining_week_intensity = alt.Chart(StrengthTraining_week).mark_area(line={'color': 'darkgreen'},
+               color=alt.Gradient(gradient='linear',stops=[alt.GradientStop(color='white', offset=0),
+                alt.GradientStop(color='darkgreen',offset=1)])).encode(x=alt.X('weekday',sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']), y='intensity')
+
+        StrengthTraining_week_intensity.title = "요일별 평균 운동 강도"
+        StrengthTraining_week_intensity.encoding.x.title = "요일"
+        StrengthTraining_week_intensity.encoding.y.title = "강도"
+
+
+        """
+        cardio
+        """
+        CardioWorkoutChart = alt.Chart(CardioWorkout).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
+            gradient='linear',
+            stops=[alt.GradientStop(color='white', offset=0),
+                   alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='totalEnergyBurned')
+
+        CardioWorkoutChart.title = "유산소 칼로리 소모량 (kcal)"
+        CardioWorkoutChart.encoding.x.title = "timeline(Y-M-D)"
+        CardioWorkoutChart.encoding.y.title = "칼로리 소모량(kcal)"
+
 
         gymTrainingChart = alt.Chart(gymTraining, title="요일별 유산소 강도 Overview"). \
             mark_circle(). \
@@ -85,10 +184,32 @@ class Workout(BaseHandler):
             configure_view(strokeWidth=0).configure_title(fontSize=24).interactive()
 
 
-        st.altair_chart(gymTrainingChart, use_container_width=True)
-        st.markdown("")
-        st.markdown("")
 
-        cols = st.beta_columns(2)
-        cols[0].altair_chart(gymTrainingPerWeekdayChart, use_container_width=True)
-        cols[1].altair_chart(CardioWorkoutChart, use_container_width=True)
+        # st.altair_chart(gymTrainingChart, use_container_width=True)
+        # st.altair_chart(weekdayCount, use_container_width=True)
+        # st.altair_chart(Soccer_play_time, use_container_width=True)
+        # st.altair_chart(Soccer_play_distance, use_container_width=True)
+        # st.altair_chart(Soccer_play_intensity, use_container_width=True)
+        st.altair_chart(StrengthTraining_intensity, use_container_width=True)
+        # st.altair_chart(StrengthTraining_week_intensity, use_container_width=True)
+
+        st.markdown("")
+        st.markdown("")
+        show_lst = list()
+
+        show_lst.append(gymTrainingChart)
+        show_lst.append(weekdayCount_Chart)
+        show_lst.append(Soccer_play_time_chart)
+        show_lst.append(Soccer_play_distance)
+        show_lst.append(Soccer_play_intensity)
+        show_lst.append(StrengthTraining_week_intensity)
+        show_lst.append(StrengthTraining_week_duration)
+        show_lst.append(CardioWorkoutChart)
+
+
+        cnt = 0
+        for i in range(4):
+            cols = st.beta_columns(2)
+            cols[0].altair_chart(show_lst[cnt], use_container_width=True)
+            cols[1].altair_chart(show_lst[cnt+1], use_container_width=True)
+            cnt += 2
