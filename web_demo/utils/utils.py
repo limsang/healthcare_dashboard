@@ -1,10 +1,11 @@
 import pytz
 import pandas as pd
-convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('America/Los_Angeles'))
+convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Seoul'))
 get_year = lambda x: convert_tz(x).year
 get_month = lambda x: '{}-{:02}'.format(convert_tz(x).year, convert_tz(x).month) #inefficient
 get_date = lambda x: '{}-{:02}-{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day) #inefficient
 get_day = lambda x: convert_tz(x).day
+get_month_only = lambda x: convert_tz(x).month
 get_hour = lambda x: convert_tz(x).hour
 get_minute = lambda x: convert_tz(x).minute
 get_day_of_week = lambda x: convert_tz(x).weekday()
@@ -21,6 +22,7 @@ def create_dataframe_with_initial_columns(df):
     df['dow'] = df['startDate'].map(get_day_of_week)
     df['year'] = df['startDate'].map(get_year)
     df['month'] = df['startDate'].map(get_month)
+    df['month_only'] = df['startDate'].map(get_month_only)
     df['date'] = df['startDate'].map(get_date)
     df['day'] = df['startDate'].map(get_day)
     df['hour'] = df['startDate'].map(get_hour)
