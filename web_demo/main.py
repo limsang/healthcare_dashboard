@@ -3,7 +3,7 @@ from home import Home
 from analyzing_page import Dataset
 from google_map import geo_workout
 
-menu = ["Home", "Healthcare", "NRC google map", 'about']
+menu = ["Home", "gym", "outdoor", 'about']
 def main():
 
 	st.set_page_config(
