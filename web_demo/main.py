@@ -31,7 +31,8 @@ def main():
 		Dataset()
 
 	else:
-		geo_workout()
+		st.info("nothing")
+		# geo_workout()
 
 if __name__ == '__main__':
 
