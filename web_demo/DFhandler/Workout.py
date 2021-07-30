@@ -194,6 +194,7 @@ class Workout(BaseHandler):
         # st.altair_chart(StrengthTraining_week_intensity, use_container_width=True)
 
         st.markdown("")
+
         st.markdown("")
         show_lst = list()
 

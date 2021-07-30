@@ -25,6 +25,8 @@ def Home():
             """
             1. 아이폰의 건강앱 & 애플워치 건강기록을 다운로드하여 스펙, 운동기록에 대한 분석결과를 조회할 수 있다.
             2. 기록 다운로드 방법은 오른편의 [Apple 공식 홈페이지 가이드](https://support.apple.com/ko-kr/guide/iphone/iph27f6325b2/ios)를 참고
+            3. 유산소 이동 구글맵 활용 소스는 다음 [Github](https://github.com/nithishr/streamlit-data-viz-demo)를 참고
+            
             
             ## How To use
             1. export.xml 파일을 업로드한다.
