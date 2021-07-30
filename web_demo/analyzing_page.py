@@ -1,13 +1,10 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
-from utils.utils import create_dataframe_with_initial_columns
+
 from utils.health_data_parser import HealthDataExtractor
 from xml.etree import ElementTree as ET
-import awesome_streamlit as ast
-import cv2 #pip install opencv-python
 
-import numpy as np
+
 from DFhandler.HeartRate import HeartRate
 from DFhandler.Workout import Workout
 from DFhandler.StepCount import StepCount

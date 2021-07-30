@@ -8,15 +8,8 @@ import awesome_streamlit as ast
 import cv2 #pip install opencv-python
 def Home():
 
-    # st.markdown("Streamlit is **_really_ cool**.")
-    # expander = st.beta_expander("FAQ")
-    #
-    # expander.write("Here you could put in some really, really long explanations...")
-    st.title("애플워치를 통해 기록한 기록정보를 분석")
+    st.title("얼마나 흘렸는지 분석해보자")
     st.markdown("***")
-
-    # hour_to_filter = st.slider('hour', 0, 23, 17)
-    # st.subheader('Map of all pickups at %s:00' % hour_to_filter)
 
     col1, col2 = st.beta_columns((1, 1))
     with col1:

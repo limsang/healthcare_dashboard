@@ -3,7 +3,6 @@ import pandas as pd
 from utils.utils import create_dataframe_with_initial_columns
 import streamlit as st
 import altair as alt
-import numpy as np
 class Workout(BaseHandler):
 
     def load_from_csv(self, df):
@@ -111,27 +110,10 @@ class Workout(BaseHandler):
         """
         soccer play distance
         """
-        # Soccer_play_distance = alt.Chart(Soccer_play_time).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
-        #     gradient='linear', stops=[alt.GradientStop(color='white', offset=0),alt.GradientStop(color='darkgreen', offset=1)])).encode(x='date', y='totalDistance')
-        #
-        # # Chart = alt.Chart(HKWorkoutActivityTypeSoccer).mark_line().encode(x='date', y='duration')
-        # Soccer_play_distance.title = "뛴 거리"
-        # Soccer_play_distance.encoding.x.title = "timeline"
-        # Soccer_play_distance.encoding.y.title = "Distance(km)"
+        Soccer_play_distance = alt.Chart(Soccer_play_time.query("totalDistance > 0")).\
+            mark_area(line={'color': 'darkgreen'},color=alt.Gradient(gradient='linear',stops=[alt.GradientStop(color='white',offset=0), alt.GradientStop(color='darkgreen',offset=1)])).encode(x='date', y='totalDistance')
 
-        Soccer_play_distance = alt.Chart(Soccer_play_time.query("totalDistance > 0")).mark_area(line={'color': 'darkgreen'},
-                                                                                            color=alt.Gradient(
-                                                                                                gradient='linear',
-                                                                                                stops=[alt.GradientStop(
-                                                                                                    color='white',
-                                                                                                    offset=0),
-                                                                                                       alt.GradientStop(
-                                                                                                           color='darkgreen',
-                                                                                                           offset=1)])).encode(
-            x='date', y='totalDistance')
-
-        # Chart = alt.Chart(HKWorkoutActivityTypeSoccer).mark_line().encode(x='date', y='duration')
-        Soccer_play_distance.title = "뛴 거리"
+        Soccer_play_distance.title = "풋살 뛴 거리"
         Soccer_play_distance.encoding.x.title = "timeline"
         Soccer_play_distance.encoding.y.title = "Distance(km)"
 
@@ -180,7 +162,6 @@ class Workout(BaseHandler):
         """
         cardio
         """
-
         CardioWorkoutChart = alt.Chart(CardioWorkout.query("totalDistance > 0")).mark_area(
             color="lightblue",
             interpolate='step-after',
@@ -199,19 +180,6 @@ class Workout(BaseHandler):
         CardioWorkout_intensity_Chart.encoding.x.title = "timeline(Y-M-D)"
         CardioWorkout_intensity_Chart.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
 
-
-
-
-        gymTrainingChart = alt.Chart(gymTraining, title="요일별 유산소 강도 Overview"). \
-            mark_circle(). \
-            encode(
-            x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
-            y='totalEnergyBurned',
-            size='ExerciseIntensity',
-            color=alt.condition(alt.datum.totalEnergyBurned > 500, alt.value('red'), alt.value('greed'))). \
-            configure_axis(grid=False, titleFontSize=20). \
-            configure_view(strokeWidth=0).configure_title(fontSize=24)
-
         gymTrainingPerWeekdayChart = alt.Chart(gymTrainingPerWeekday, title="요일별 운동 Overview"). \
             mark_circle(). \
             encode(
@@ -225,21 +193,21 @@ class Workout(BaseHandler):
             configure_view(strokeWidth=0).configure_title(fontSize=24).interactive()
 
 
-
-        st.altair_chart(CardioWorkoutChart, use_container_width=True)
-        st.altair_chart(CardioWorkout_intensity_Chart, use_container_width=True)
-        st.altair_chart(weekdayCount_Chart, use_container_width=True)
+        #
+        # st.altair_chart(CardioWorkoutChart, use_container_width=True)
+        # st.altair_chart(CardioWorkout_intensity_Chart, use_container_width=True)
+        # st.altair_chart(weekdayCount_Chart, use_container_width=True)
         # st.altair_chart(Soccer_play_distance, use_container_width=True)
-        st.altair_chart(StrengthTraining_week_duration, use_container_width=True)
-        st.altair_chart(StrengthTraining_intensity, use_container_width=True)
-        st.altair_chart(Soccer_play_time_chart, use_container_width=True)
+        # st.altair_chart(StrengthTraining_week_duration, use_container_width=True)
+        # st.altair_chart(StrengthTraining_intensity, use_container_width=True)
+        # st.altair_chart(Soccer_play_time_chart, use_container_width=True)
 
         st.markdown("")
 
         st.markdown("")
         show_lst = list()
 
-        show_lst.append(gymTrainingChart)
+        show_lst.append(StrengthTraining_intensity)
         show_lst.append(weekdayCount_Chart)
         show_lst.append(Soccer_play_time_chart)
         show_lst.append(Soccer_play_distance)
@@ -249,9 +217,9 @@ class Workout(BaseHandler):
         show_lst.append(CardioWorkoutChart)
 
 
-        # cnt = 0
-        # for i in range(4):
-        #     cols = st.beta_columns(2)
-        #     cols[0].altair_chart(show_lst[cnt], use_container_width=True)
-        #     cols[1].altair_chart(show_lst[cnt+1], use_container_width=True)
-        #     cnt += 2
+        cnt = 0
+        for i in range(4):
+            cols = st.beta_columns(2)
+            cols[0].altair_chart(show_lst[cnt], use_container_width=True)
+            cols[1].altair_chart(show_lst[cnt+1], use_container_width=True)
+            cnt += 2

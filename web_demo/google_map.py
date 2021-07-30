@@ -4,39 +4,7 @@ from datetime import datetime
 from folium.plugins import HeatMap
 import folium
 from streamlit_folium import folium_static
-import matplotlib.pyplot as plt
-import flickrapi
-import random
 from dotenv import load_dotenv # python-dotenv
-import os
-import urllib
-
-from utils.route_data_parser import RouteDataExtractor
-
-def uploadGPX_saveCSV():
-    log_file_in_xml = st.file_uploader("Upload XML", type=['gpx'])
-    if st.button("xml데이터 저장"):
-        tmp = "route.gpx"
-        XML_PATH = f'data/workout-routes/{tmp}'
-        """
-        업로드한 파일을 지정된 경로로 복사한다.
-        """
-        # "data/workout-routes/*"
-        # if log_file_in_xml is not None:
-        #     data = RouteDataExtractor(XML_PATH)
-        #     data.loop_genDF()
-        #
-        # else:
-        #     st.info("not an valid file")
-
-    def file_selector(folder_path='/'):
-        val = folder_path
-        # /Users/amore/Desktop/ap-gitlab/healthcare_dashboard/web_demo/data/workout-routes
-        val = st.text_input("type in absolute workout-route path")
-        print(val)
-        selected_filename = st.selectbox('Select a file', val)
-        return val
-
 
 def geo_workout():
     load_dotenv()
@@ -49,7 +17,6 @@ def geo_workout():
         travel_log.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}, inplace=True)
         return travel_log
 
-    # uploadGPX_saveCSV()
     st.markdown("***")
 
     travel_data = load_data()
@@ -57,9 +24,9 @@ def geo_workout():
     min_ts = datetime.strptime(min(travel_data["date_3"]), "%Y-%m-%d %H:%M")
     max_ts = datetime.strptime(max(travel_data["date_3"]), "%Y-%m-%d %H:%M")
 
-    st.sidebar.subheader("Inputs")
+    st.sidebar.subheader("Settings")
     min_selection, max_selection = st.sidebar.slider(
-        "Timeline", min_value=min_ts, max_value=max_ts, value=[min_ts, max_ts]
+        "조회기간", min_value=min_ts, max_value=max_ts, value=[min_ts, max_ts]
     )
 
     # Toggles for the feature selection in sidebar
