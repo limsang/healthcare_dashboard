@@ -3,7 +3,9 @@ from home import Home
 from analyzing_page import Dataset
 from google_map import geo_workout
 
-menu = ["Home", "gym", "outdoor", 'about']
+from bodyspec import bodyspec
+
+menu = ["Home", 'BodySpec', "gym", "outdoor", 'about']
 def main():
 
 	st.set_page_config(
@@ -20,9 +22,12 @@ def main():
 		Home()
 
 	elif choice == menu[1]:
-		Dataset()
+		bodyspec()
 
 	elif choice == menu[2]:
+		Dataset()
+
+	elif choice == menu[3]:
 		geo_workout()
 
 	else:

@@ -277,7 +277,6 @@ class Workout(BaseHandler):
         cols[0].altair_chart(overallChart, use_container_width=True)
         cols[1].altair_chart(overall_trend_chart, use_container_width=True)
 
-
         st.altair_chart(overallChart, use_container_width=True)
         st.altair_chart(overall_trend_chart, use_container_width=True)
         st.markdown("***")
