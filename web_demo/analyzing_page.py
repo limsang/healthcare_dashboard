@@ -71,9 +71,9 @@ def Dataset():
 
                 # 업로드한 파일명을 기준으로 분석
                 if data_file.name == 'Workout.csv':
-                    tmp = Workout_HANDLER.load_from_csv(df)
-                    weekdayCount, StrengthTraining, StrengthTraining_week, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday = Workout_HANDLER.preproc(tmp)
-                    Workout_HANDLER.visualize(weekdayCount, StrengthTraining, StrengthTraining_week, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday)
+                    WorkoutDF = Workout_HANDLER.load_from_csv(df)
+                    overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer,Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday = Workout_HANDLER.preproc(WorkoutDF)
+                    Workout_HANDLER.visualize(overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday)
 
                 elif data_file.name == 'RestingHeartRate.csv':
                     tmp = RHR_HANDLER.load_from_csv(df)
