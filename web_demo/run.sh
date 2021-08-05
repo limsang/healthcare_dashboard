@@ -3,5 +3,5 @@
 cd ..
 source venv/bin/activate
 #pip list
-cd streamlit_web
+cd web_demo
 streamlit run main.py
