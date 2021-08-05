@@ -14,12 +14,16 @@ import os
 import haversine
 from pandas import DataFrame
 
+
+ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
+ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
+
 class RouteDataExtractor(object):
 
     def __init__(self, LOCATION):
         self.LOCATION = LOCATION
-        self.FILENAME = "route_2021-01-07_9.04pm.gpx"
-        self.gpx_file_name = LOCATION + self.FILENAME
+        # self.FILENAME = "route_2021-01-07_9.04pm.gpx"
+        # self.gpx_file_name = LOCATION + self.FILENAME
         self.gpxHandler = None
 
     def loop_genDF(self):
@@ -30,17 +34,17 @@ class RouteDataExtractor(object):
         :return:
         """
 
-        path = "data/workout-routes/*"
         file_list = glob.glob(self.LOCATION)
         file_list = [file for file in file_list if file.endswith(".gpx")]
-        print("file_list", file_list)
 
         lst_gpxPool = list()
         for gpxfileName in file_list:
             self.gpxHandler = gpxpy.parse(open(gpxfileName))
             lst_gpxPool.append(self.gen_MassRouteDF(self.gpxHandler))
         df = pd.concat(lst_gpxPool)
-        df.to_csv(f'dsafsdf.csv')  # file path, f
+
+        data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
+        df.to_csv(data_dir)  # file path, f
         print('for generating all cardio workouts')
 
     def gen_MassRouteDF(self, gpxHandler):
@@ -109,8 +113,7 @@ class RouteDataExtractor(object):
 
 
 if __name__ == '__main__':
-    handler = RouteDataExtractor()
-
-    # path = "data/workout-routes"
+    data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/*')
+    handler = RouteDataExtractor(data_dir)
     handler.loop_genDF()
 

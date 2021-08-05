@@ -5,6 +5,10 @@ from folium.plugins import HeatMap
 import folium
 from streamlit_folium import folium_static
 from dotenv import load_dotenv # python-dotenv
+import os
+
+ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
+# ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
 
 def geo_workout():
     load_dotenv()
@@ -12,7 +16,10 @@ def geo_workout():
     #@st.cache
     def load_data():
         """ Load the cleaned data with latitudes, longitudes & timestamps """
-        travel_log = pd.read_csv("result.csv")
+
+        data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
+        travel_log = pd.read_csv(data_dir)
+
         travel_log["date"] = pd.to_datetime(travel_log["date_2"])
         travel_log.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}, inplace=True)
         return travel_log
