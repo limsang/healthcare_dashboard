@@ -7,7 +7,7 @@ from conf.conf import conf as cf
 
 from bodyspec import bodyspec
 
-menu = ["Home", 'BodySpec', "gym", "outdoor", 'about']
+menu = ["Home", 'profile', "운동기록", "유산소기록", 'about']
 def main():
 	"""
 	최상단에서 설정해주지않으면 커스텀 config 설정과 중복으로 인식해서 실행불가

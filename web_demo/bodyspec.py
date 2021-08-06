@@ -6,10 +6,10 @@ import awesome_streamlit as ast
 import cv2 #pip install opencv-python
 
 BodyMass_dlr = "BodyMass"
-V02Max_dlr = "V02Max"
+V02Max_dlr = "VO2Max"
 Height_dlr = "Height"
 RestingHeartRate_dlr = "RestingHeartRate"
-BasalEnergyBurned_dlr = "BasalEnergyBurned"
+HeadphoneAudioExposure_dir = "HeadphoneAudioExposure"
 
 def gen_file_path(dir):
     return os.path.join(os.getcwd(), dir)
@@ -27,27 +27,9 @@ def bodyspec(conf):
     csv_list.append(V02Max_dlr)
     csv_list.append(Height_dlr)
     csv_list.append(RestingHeartRate_dlr)
-    csv_list.append(BasalEnergyBurned_dlr)
+    csv_list.append(HeadphoneAudioExposure_dir)
 
-    DF = BodySpecHandler.load_from_csv(csv_list)
-
-    print("DF", DF)
-
-    st.title("바디스펙")
-
-
-    # Soccer_play_distance = alt.Chart(df).mark_area(
-    #     color="lightblue",
-    #     interpolate='step-after',
-    #     line=True).encode(x='creationDate', y='value')
-    #
-    # st.altair_chart(Soccer_play_distance, use_container_width=True)
-
-    # WorkoutDF = BodySpecHandler.load_from_csv(df)
-    #
-    # overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday = Workout_HANDLER.preproc(
-    #     WorkoutDF)
-    # Workout_HANDLER.visualize(overall, weekdayCount, StrengthTraining, StrengthTraining_week,
-    #                           HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining,
-    #                           gymTrainingPerWeekday)
+    BodyMass, Height, V02Max, BasalEnergyBurned, HeadphoneAudioExposure, week_HeadphoneAudioExposure = BodySpecHandler.load_from_csv(csv_list)
+    BodySpecHandler.visualize(BodyMass, Height, V02Max, BasalEnergyBurned, HeadphoneAudioExposure, week_HeadphoneAudioExposure)
+    # st.title("바디스펙")
 
