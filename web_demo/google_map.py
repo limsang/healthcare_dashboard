@@ -15,14 +15,13 @@ import pytz
 convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Seoul'))
 get_hour = lambda x: '{}-{:02}-{:02} {:02}:{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day, convert_tz(x).hour, convert_tz(x).min) #inefficient
 
-def geo_workout():
+def geo_workout(conf):
     #cache
     load_dotenv()
     outdoor_Route_HANDLER = OutdoorRoute()
 
     st.markdown("***")
-
-    data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
+    data_dir = os.path.join(ROOT_DIRECTORY,  conf.path['data']['outdoor_route_data'])
     travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
 
     min_ts = datetime.strptime(min(travel_data["date_in_str"]), "%Y-%m-%d %H:%M")

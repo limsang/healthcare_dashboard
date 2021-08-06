@@ -3,10 +3,11 @@ import os
 
 import awesome_streamlit as ast
 import cv2 #pip install opencv-python
-def Home():
+def Home(conf):
 
     st.title("얼마나 흘렸는지 분석해보자")
     st.markdown("***")
+
 
     col1, col2 = st.beta_columns((1, 1))
     with col1:
@@ -27,13 +28,13 @@ def Home():
             """
         )
         ast.shared.components.video_youtube(
-            src="https://www.youtube.com/embed/nSw96qUbK9o"
+            src=conf.path['links']['youtube_main']
         )
 
     with col2:
         st.title("Apple guide")
         if os.path.exists(os.path.join(os.getcwd(), 'images', 'apple_healthApp_data_down_1.png')):
-            image = cv2.imread('images/apple_healthApp_data_down_1.png')
+            image = cv2.imread( conf.path['image']['home']['apple_healthApp_data'])
             st.image(image, use_column_width=True, clamp=True)
         else:
             st.subheader("image load failed")

@@ -14,7 +14,7 @@ BasalEnergyBurned_dlr = "BasalEnergyBurned"
 def gen_file_path(dir):
     return os.path.join(os.getcwd(), dir)
 
-def bodyspec():
+def bodyspec(conf):
 
     BodySpecHandler = BodySpec()
 

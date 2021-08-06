@@ -4,7 +4,6 @@ import pandas as pd
 from utils.health_data_parser import HealthDataExtractor
 from xml.etree import ElementTree as ET
 
-
 from DFhandler.HeartRate import HeartRate
 from DFhandler.Workout import Workout
 from DFhandler.StepCount import StepCount
@@ -37,7 +36,7 @@ def uploadXML_saveCSV():
         else:
             st.info("not an valid file")
 
-def Dataset():
+def Dataset(conf):
 
     RHR_HANDLER = RestingHeartRate()
     Workout_HANDLER = Workout()
@@ -57,12 +56,11 @@ def Dataset():
 
     if st.button("분석결과 조회"):
         if data_file is not None:
-            if data_file.name in VALID_FILE_LIST:
+            if data_file.name in conf.path['data']['VALID_FILE_LIST']:
                 df = pd.read_csv(data_file)
                 my_expander = st.beta_expander(label='csv details')
 
                 with my_expander:
-                    'Hello there!'
                     file_details = {"Filename": data_file.name, "FileType": data_file.type,"FileSize":data_file.size}
                     st.write(file_details)
 
