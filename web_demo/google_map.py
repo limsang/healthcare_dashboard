@@ -9,27 +9,24 @@ import os
 
 ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
 # ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
+from DFhandler.outdoor_route import OutdoorRoute
+
+import pytz
+convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Seoul'))
+get_hour = lambda x: '{}-{:02}-{:02} {:02}:{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day, convert_tz(x).hour, convert_tz(x).min) #inefficient
 
 def geo_workout():
+    #cache
     load_dotenv()
-
-    #@st.cache
-    def load_data():
-        """ Load the cleaned data with latitudes, longitudes & timestamps """
-
-        data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
-        travel_log = pd.read_csv(data_dir)
-
-        travel_log["date"] = pd.to_datetime(travel_log["date_2"])
-        travel_log.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}, inplace=True)
-        return travel_log
+    outdoor_Route_HANDLER = OutdoorRoute()
 
     st.markdown("***")
 
-    travel_data = load_data()
+    data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
+    travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
 
-    min_ts = datetime.strptime(min(travel_data["date_3"]), "%Y-%m-%d %H:%M")
-    max_ts = datetime.strptime(max(travel_data["date_3"]), "%Y-%m-%d %H:%M")
+    min_ts = datetime.strptime(min(travel_data["date_in_str"]), "%Y-%m-%d %H:%M")
+    max_ts = datetime.strptime(max(travel_data["date_in_str"]), "%Y-%m-%d %H:%M")
 
     st.sidebar.subheader("Settings")
     min_selection, max_selection = st.sidebar.slider(
