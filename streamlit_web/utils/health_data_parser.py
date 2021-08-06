@@ -219,7 +219,9 @@ class HealthDataExtractor(object):
 
 
 if __name__ == '__main__':
-
-    data = HealthDataExtractor("data/export.xml")
+    parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
+    parent = os.path.abspath(os.path.join(parent, os.pardir))
+    data_dir = os.path.join(parent, 'applewatch_data/export.xml')
+    data = HealthDataExtractor(data_dir)
     data.report_stats()
     data.extract()

@@ -1,8 +1,5 @@
 import streamlit as st
-from PIL import Image
-import altair as alt
-import pandas as pd
-import numpy as np
+import os
 
 import awesome_streamlit as ast
 import cv2 #pip install opencv-python
@@ -35,5 +32,8 @@ def Home():
 
     with col2:
         st.title("Apple guide")
-        image = cv2.imread('images/apple_healthApp_data_down_1.png')
-        st.image(image, use_column_width=True, clamp=True)
+        if os.path.exists(os.path.join(os.getcwd(), 'images', 'apple_healthApp_data_down_1.png')):
+            image = cv2.imread('images/apple_healthApp_data_down_1.png')
+            st.image(image, use_column_width=True, clamp=True)
+        else:
+            st.subheader("image load failed")

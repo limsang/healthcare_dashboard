@@ -3,9 +3,12 @@ import pandas as pd
 from utils.utils import create_dataframe_with_initial_columns
 
 import os
+
 def gen_file_path(dir):
-    file_name = f"data/{dir}.csv"
-    return os.path.join(os.getcwd(), file_name)
+    parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
+    parent = os.path.abspath(os.path.join(parent, os.pardir))
+    file_name = f"applewatch_data/{dir}.csv"
+    return os.path.join(parent, file_name)
 
 class BodySpec(BaseHandler):
 

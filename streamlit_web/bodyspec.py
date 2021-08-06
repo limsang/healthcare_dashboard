@@ -1,8 +1,5 @@
 import streamlit as st
-from PIL import Image
-import altair as alt
-import pandas as pd
-import numpy as np
+
 import os
 from DFhandler.BodySpec import BodySpec
 import awesome_streamlit as ast
@@ -13,7 +10,6 @@ V02Max_dlr = "V02Max"
 Height_dlr = "Height"
 RestingHeartRate_dlr = "RestingHeartRate"
 BasalEnergyBurned_dlr = "BasalEnergyBurned"
-
 
 def gen_file_path(dir):
     return os.path.join(os.getcwd(), dir)
@@ -35,8 +31,10 @@ def bodyspec():
 
     DF = BodySpecHandler.load_from_csv(csv_list)
 
+    print("DF", DF)
+
     st.title("바디스펙")
-    # df = pd.read_csv(file_path)
+
 
     # Soccer_play_distance = alt.Chart(df).mark_area(
     #     color="lightblue",
