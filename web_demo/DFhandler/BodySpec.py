@@ -98,10 +98,6 @@ class BodySpec(BaseHandler):
 
         cols = st.beta_columns(2)
 
-
-        # sex = ["남성", "여성"]
-        sex = st.radio("성별", ["남성", "여성"])
-
         chartBodyMass = alt.Chart(BodyMass.query('type=="BodyMass"')).mark_circle(opacity=0.9).encode(
             x='date',
             y='value',
