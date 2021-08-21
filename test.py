@@ -1,34 +1,28 @@
-import numpy as np
-import tensorflow as tf
-from matplotlib import pyplot as plt
+
+from sklearn.model_selection import train_test_split
+import pytz
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import LSTM
-import pytz
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+from matplotlib import pyplot as plt
 
 convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Seoul'))
 get_year = lambda x: convert_tz(x).year
-get_month = lambda x: '{}-{:02}'.format(convert_tz(x).year, convert_tz(x).month) #inefficient
-get_date = lambda x: '{}-{:02}-{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day) #inefficient
+get_month = lambda x: '{}-{:02}'.format(convert_tz(x).year, convert_tz(x).month)  # inefficient
+get_date = lambda x: '{}-{:02}-{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day)  # inefficient
 get_day = lambda x: convert_tz(x).day
 get_month_only = lambda x: convert_tz(x).month
 get_hour = lambda x: convert_tz(x).hour
 get_minute = lambda x: convert_tz(x).minute
 get_day_of_week = lambda x: convert_tz(x).weekday()
 
+get_hour_min = lambda x: '{}-{:02}-{:02} {:02}:{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day,
+                                                             convert_tz(x).hour, convert_tz(x).min)  # inefficient
 
-get_hour_min = lambda x: '{}-{:02}-{:02} {:02}:{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day, convert_tz(x).hour, convert_tz(x).min) #inefficient
-def make_dataset(data, label, window_size=20):
-    feature_list = []
-    label_list = []
-    for i in range(len(data) - window_size):
-        feature_list.append(np.array(data.iloc[i:i+window_size]))
-        label_list.append(np.array(label.iloc[i+window_size]))
-    return np.array(feature_list), np.array(label_list)
+
 def create_dataframe_with_initial_columns(df):
     """
     csv로 저장된 값을 df로 변환하는 역할
@@ -54,89 +48,116 @@ def create_dataframe_with_initial_columns(df):
 
     return df
 
-if __name__ == '__main__':
-    DistanceWalkingRunning = pd.read_csv('applewatch_data/DistanceWalkingRunning.csv')
-    DistanceWalkingRunning = create_dataframe_with_initial_columns(DistanceWalkingRunning)
 
-    left = DistanceWalkingRunning[['date', 'weekday_order']].drop_duplicates(['date'], keep='last')
-    right = DistanceWalkingRunning[['value', 'date']]
-    right = right.groupby(['date']).sum().reset_index()
-
-    grp_running = pd.merge(left, right, left_on=['date'], right_on=['date'], how='inner')
-
-    #아웃라이어 제거
-    grp_running = grp_running.query('value < 15 and value > 1')
+def norm(df, col):
+    result = df.copy()
+    for feature_name in df.columns:
+        max_value = df[col].max()
+        min_value = df[col].min()
+        result['norm_value'] = (df[col] - min_value) / (max_value - min_value)
+    return result
 
 
+def dbspl_norm(data):
+    lst = [0, 30, 45, 60, 80, 90, 100, 9999999]
+    color = ['mute', 'silence', 'whitenoise', 'cafenoise', 'stadium', 'rocking', 'kinda danger', 'warfare']
 
-    scaler = MinMaxScaler()
-    scale_cols = ['value', 'weekday_order']
-    grp_running_scaled = scaler.fit_transform(grp_running[scale_cols])
+    res = "mute"
+    for idx, item in enumerate(lst[:-1]):
+        if lst[idx] < data <= lst[idx + 1]:
+            res = color[idx + 1]
 
-    grp_running_scaled = pd.DataFrame(grp_running_scaled)
-    grp_running_scaled.columns = scale_cols
-
-    # for training, create train data
-    TEST_SIZE = 50
-
-    train = grp_running_scaled[:-TEST_SIZE]
-    test = grp_running_scaled[-TEST_SIZE:]
+    return res
 
 
-    feature_cols = ['value','weekday_order']
-    label_cols = ['value']
+def HeadphoneAudioExposure_splitter(data, index):
+    res = data.split(',')
+    res = res[index][6:]
+    return res
+
+
+def make_dataset(data, label, n_steps_in, n_steps_out):
+    offset = n_steps_in + n_steps_out
+    feature_list = []
+    label_list = []
+
+    for i in range(len(data) - (offset)):
+        feature_list.append(np.array(data.iloc[i:i + n_steps_in]))
+        label_list.append(np.squeeze(np.array(label.iloc[i + n_steps_in:i + offset]), axis=1))
+
+    return np.array(feature_list), np.array(label_list)
+
+
+def main():
+    moving_average_value = 50
+    HeadphoneAudioExposure = pd.read_csv('applewatch_data/HeadphoneAudioExposure.csv')
+    HeadphoneAudioExposure = create_dataframe_with_initial_columns(HeadphoneAudioExposure)
+
+    HeadphoneAudioExposure['device_name'] = HeadphoneAudioExposure.apply(
+        lambda x: HeadphoneAudioExposure_splitter(x["device"], 1), axis=1)
+    HeadphoneAudioExposure = HeadphoneAudioExposure[['value', 'dttm', 'device_name', 'weekday', 'weekday_order']]
+    HeadphoneAudioExposure = HeadphoneAudioExposure.groupby(["dttm", "device_name", "weekday", 'weekday_order']).max(
+        ['value']).reset_index()
+    HeadphoneAudioExposure['mv_avg'] = HeadphoneAudioExposure['value'].rolling(window=moving_average_value).mean()
+    HeadphoneAudioExposure = HeadphoneAudioExposure.fillna(0)
+
+    data = HeadphoneAudioExposure[['weekday_order', 'mv_avg', 'value']]
+    n_steps_in, n_steps_out = 7, 5
+
+    TEST_SIZE = int(0.2*len(data))
+
+    train = data[:-TEST_SIZE]
+    test = data[-TEST_SIZE:]
+
+    feature_cols = ['value', 'weekday_order', 'mv_avg']
+    label_cols = ['mv_avg']
 
     train_feature = train[feature_cols]
     train_label = train[label_cols]
 
-    # train dataset
-    train_feature, train_label = make_dataset(train_feature, train_label, 5)
+    # lstm format
+    train_feature, train_label = make_dataset(train_feature, train_label, n_steps_in, n_steps_out)
+
     # train, validation set 생성
 
-    x_train, x_valid, y_train, y_valid= train_test_split(train_feature, train_label, test_size=0.2)
+    x_train, x_valid, y_train, y_valid = train_test_split(train_feature, train_label, test_size=0.2)
 
-    x_train.shape, y_train.shape, x_valid.shape, y_valid.shape
-    # ((236, 20, 2), (236, 1), (60, 20, 2), (60, 1))
-    test_feature = train[feature_cols]
-    test_label = train[label_cols]
-    # test dataset (실제 예측 해볼 데이터)
-    test_feature, test_label = make_dataset(test_feature, test_label, 7)
-
-
-    tf.keras.backend.clear_session()
+    n_features = x_train.shape[2]
 
     model = Sequential()
-    model.add(LSTM(units=32,  # dimensionality of the output space.
-                   input_shape=(train_feature.shape[1], train_feature.shape[2]),  # 20, 4
-                   activation='relu',
-                   return_sequences=False)
-              )
-    model.add(Dense(1))
+    model.add(LSTM(32, activation='relu', return_sequences=True, input_shape=(n_steps_in, n_features)))
+    model.add(LSTM(32, activation='relu'))
+    model.add(Dense(n_steps_out))
+    model.compile(optimizer='adam', loss='mse')
 
-    print("model.summary()", model.summary())
-
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    early_stop = EarlyStopping(monitor='val_loss', patience=5)
-    filename = ('checkpoint.h5')
-    checkpoint = ModelCheckpoint(filename, monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+    early_stop = EarlyStopping(monitor='loss', patience=5)
+    filename = ('multipredict.h5')
+    checkpoint = ModelCheckpoint(filename, monitor='loss', verbose=1, save_best_only=True, mode='auto')
 
     history = model.fit(x_train, y_train,
-                        epochs=150,
-                        batch_size=16,
+                        epochs=50,
+                        verbose=0,
+                        batch_size=1,
                         validation_data=(x_valid, y_valid),
                         callbacks=[early_stop, checkpoint])
+
+    test_feature = test[feature_cols]
+    test_label = test[label_cols]
+    # test dataset (실제 예측 해볼 데이터)
+
+    test_feature, test_label = make_dataset(test_feature, test_label, n_steps_in, n_steps_out)
+    # test_feature.shape, test_label.shape
 
     # weight 로딩
     model.load_weights(filename)
 
     # 예측
     pred = model.predict(test_feature)
-
     plt.figure(figsize=(17, 9))
     plt.plot(test_label, label='actual')
     plt.plot(pred, label='prediction')
     plt.legend()
     plt.show()
 
-
-
+if __name__ == '__main__':
+    main()
