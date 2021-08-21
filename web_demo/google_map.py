@@ -23,6 +23,7 @@ def geo_workout(conf):
     st.markdown("***")
     data_dir = os.path.join(ROOT_DIRECTORY,  conf.path['data']['outdoor_route_data'])
     travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
+    travel_data = outdoor_Route_HANDLER.preproc(travel_data)
 
     min_ts = datetime.strptime(min(travel_data["date_in_str"]), "%Y-%m-%d %H:%M")
     max_ts = datetime.strptime(max(travel_data["date_in_str"]), "%Y-%m-%d %H:%M")
@@ -41,7 +42,13 @@ def geo_workout(conf):
     st.write(f"Data Points: {len(travel_data)}")
 
     # Plot the GPS coordinates on the map
-    st.map(travel_data)
+
+    upperDF = travel_data.query('cluster == 1')
+    upperDF = upperDF[['latitude','longitude','date','date_in_str']]
+    lowerDF = travel_data.query('cluster == 0')
+
+    st.map(upperDF)
+    st.map(lowerDF)
 
     if show_heatmap:
         # Plot the heatmap using folium. It is resource intensive!
