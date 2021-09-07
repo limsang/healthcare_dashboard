@@ -7,6 +7,7 @@ class Workout(BaseHandler):
 
     def load_from_csv(self, df):
         _df = create_dataframe_with_initial_columns(df)
+        # 비어있는 날짜의 값을 채워넣는다
         empty_date = _df.groupby("date").max().reset_index()
         r = pd.date_range(start=empty_date.date.min(), end=empty_date.date.max())
         empty_date = empty_date.set_index('date').reindex(r).fillna(0.0).rename_axis('date').reset_index()
@@ -141,7 +142,6 @@ class Workout(BaseHandler):
         weekdayCount_Chart.encoding.y.title = "횟수"
 
 
-
         """
         soccer
         """
@@ -265,18 +265,10 @@ class Workout(BaseHandler):
 
 
         """
-        GRAPH
-        
+        overall
         """
 
-        # st.altair_chart(gymTrainingPerWeekdayChart, use_container_width=True)
-
-
         st.title("OVERALL")
-        cols = st.beta_columns(2)
-        cols[0].altair_chart(overallChart, use_container_width=True)
-        cols[1].altair_chart(overall_trend_chart, use_container_width=True)
-
         st.altair_chart(overallChart, use_container_width=True)
         st.altair_chart(overall_trend_chart, use_container_width=True)
         st.markdown("***")
@@ -287,22 +279,22 @@ class Workout(BaseHandler):
         st.markdown("***")
 
 
+        """
+        soccer/futsal
+        """
         st.title("SOCCER/FUTSAL")
         cols = st.beta_columns(2)
-
-
-        # st.altair_chart(HKWorkoutActivityTypeSoccer_chart, use_container_width=True)
         st.altair_chart(Soccer_play_intensity, use_container_width=True)
         cols[0].altair_chart(Soccer_play_distance, use_container_width=True)
         cols[1].altair_chart(HKWorkoutActivityTypeSoccer_chart, use_container_width=True)
 
         st.markdown("***")
 
+        """
+        gym
+        """
         st.title("GYM")
         cols = st.beta_columns(2)
-        st.altair_chart(StrengthTrainingTrend, use_container_width=True)
-
         cols[0].altair_chart(StrengthTraining_week_duration, use_container_width=True)
         cols[1].altair_chart(StrengthTraining_intensity, use_container_width=True)
-        st.markdown("***")
 

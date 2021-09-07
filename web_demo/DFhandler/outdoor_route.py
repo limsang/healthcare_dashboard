@@ -31,7 +31,7 @@ class OutdoorRoute(BaseHandler):
         kmeans = KMeans(n_clusters=2)
         # kmeans.fit(route[['dist_dif_per_sec','Longitude','Latitude']])
 
-        kmeans.fit(route[['Speed', 'latitude']])
+        kmeans.fit(route[['Speed', 'latitude', 'longitude', 'speed_km_per_hour']])
 
         # 결과 확인
         result_by_sklearn = route.copy()
