@@ -3,6 +3,8 @@ import pandas as pd
 from utils.utils import create_dataframe_with_initial_columns
 import streamlit as st
 import altair as alt
+import numpy as np
+import tensorflow as tf
 class Workout(BaseHandler):
 
     def load_from_csv(self, df):
@@ -76,12 +78,16 @@ class Workout(BaseHandler):
         StrengthTraining = StrengthTraining.fillna(0)
         StrengthTraining['weekday'].replace({0: "NULL"}, inplace=True)
 
-        # StrengthTraining = Workout.query('workoutActivityType =="HKWorkoutActivityTypeTraditionalStrengthTraining"')
-        # StrengthTraining = StrengthTraining.groupby(['date', 'weekday'])[['duration', 'totalEnergyBurned']].sum().reset_index()
-        # StrengthTraining = StrengthTraining.drop_duplicates(['date'], keep='last')
-        # StrengthTraining['avg_duration'] = StrengthTraining["duration"].mean()
-        # StrengthTraining['duration_indicator'] = StrengthTraining["duration"] / StrengthTraining["avg_duration"]
-        # StrengthTraining['intensity'] = StrengthTraining['duration_indicator'] * StrengthTraining['totalEnergyBurned']/StrengthTraining['duration']
+
+        # 주기측정용 푸리에 DF
+        fft = tf.signal.rfft(StrengthTraining['duration'])  # Real-valued fast Fourier transform.
+        f_per_dataset = np.arange(0, len(fft))  # fft 전체길이 35045
+        n_samples_h = len(StrengthTraining['duration'])
+        weeks_per_dataset = n_samples_h / 7  # because we use weeks for sampling
+        f_per_year = f_per_dataset / weeks_per_dataset  # sampling frequency
+        fft_real_value = np.abs(fft)
+        StrengthTraining_fft_duration = pd.DataFrame({'f_per_year': f_per_year, 'fft_real_value': fft_real_value})
+
 
         StrengthTraining_week = StrengthTraining.groupby(by=['weekday'], as_index=False).mean()
 
@@ -102,12 +108,12 @@ class Workout(BaseHandler):
         # 인덱스를 일반 컬럼으로 이동
         gymTrainingPerWeekday = gymTrainingPerWeekday.reset_index()
 
-        return overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday
+        return overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration
 
     def analysis_with_model(self):
         pass
 
-    def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday):
+    def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration):
 
         overallChart = alt.Chart(overall).mark_bar(interpolate='monotone').encode(
             x='date:T',
@@ -192,6 +198,8 @@ class Workout(BaseHandler):
         """
         헬스
         """
+
+        # print("StrengthTraining", StrengthTraining)
         StrengthTraining_intensity = alt.Chart(StrengthTraining).mark_bar(opacity=1.0).encode(
             x='date:T',
             y=alt.Y('intensity:Q', stack=None),
@@ -201,6 +209,20 @@ class Workout(BaseHandler):
         StrengthTraining_intensity.title = "헬스 강도"
         StrengthTraining_intensity.encoding.x.title = "timeline(Y-M-D)"
         StrengthTraining_intensity.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
+
+
+        StrengthTraining_fft_duration = StrengthTraining_fft_duration[10:]
+
+        StrengthTraining_fft_duration_chart = alt.Chart(StrengthTraining_fft_duration).mark_bar().encode(
+            x='f_per_year',
+            y='fft_real_value',
+        )
+
+
+        StrengthTraining_fft_duration_chart.title = "주기"
+        # StrengthTraining_fft_duration_chart.encoding.x.title = "timeline(Y-M-D)"
+        # StrengthTraining_fft_duration_chart.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
+
 
 
         base = alt.Chart(StrengthTraining_week.query('duration > 0')).encode(
@@ -297,4 +319,8 @@ class Workout(BaseHandler):
         cols = st.beta_columns(2)
         cols[0].altair_chart(StrengthTraining_week_duration, use_container_width=True)
         cols[1].altair_chart(StrengthTraining_intensity, use_container_width=True)
+
+
+        st.altair_chart(StrengthTraining_fft_duration_chart, use_container_width=True)
+
 
