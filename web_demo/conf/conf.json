@@ -1,0 +1,24 @@
+{
+  "data": {
+    "VALID_FILE_LIST": ["HeartRate.csv", "BodyMass.csv", "Workout.csv", "StepCount.csv", "DistanceCycling.csv", "WalkingAsymmetryPercentage.csv", "DistanceWalkingRunning.csv",
+      "RestingHeartRate.csv', 'SixMinuteWalkTestDistance.csv", "Height.csv", "VO2Max.csv", "HKDataTypeSleepDurationGoal.csv", "HeartRateVariabilitySDNN.csv",
+      "WalkingSpeed.csv", "AppleExerciseTime.csv", "BasalEnergyBurned.csv", "AppleStandHour.csv", "WalkingHeartRateAverage.csv", "WalkingStepLength.csv",
+      "ActiveEnergyBurned.csv", "HeadphoneAudioExposure.csv", "WalkingDoubleSupportPercentage.csv", "FlightsClimbed.csv", "SleepAnalysis.csv", "ActivitySummary.csv","AppleStandTime.csv"]
+    ,
+    "outdoor_route_data": "applewatch_data/workout-routes/stacked_route_data.csv",
+    "bodyspec_list": ["BodyMass","V02Max","Height" ,"RestingHeartRate", "BasalEnergyBurned"]
+  },
+
+  "email": {
+    "limsang": "lsh9225@naver.com"
+  },
+
+  "image": {
+    "home": {
+      "apple_healthApp_data": "images/apple_healthApp_data_down_1.png"
+    }
+  },
+  "links": {
+    "youtube_main": "https://www.youtube.com/embed/nSw96qUbK9o"
+  }
+}

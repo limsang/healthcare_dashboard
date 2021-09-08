@@ -31,5 +31,5 @@ def bodyspec(conf):
 
     BodyMass, Height, V02Max, BasalEnergyBurned, HeadphoneAudioExposure, week_HeadphoneAudioExposure = BodySpecHandler.load_from_csv(csv_list)
     BodySpecHandler.visualize(BodyMass, Height, V02Max, BasalEnergyBurned, HeadphoneAudioExposure, week_HeadphoneAudioExposure)
-    # st.title("바디스펙")
+
 
