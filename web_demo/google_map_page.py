@@ -18,18 +18,18 @@ def geo_workout(conf):
     #cache
     load_dotenv()
     outdoor_Route_HANDLER = OutdoorRoute()
-
-
     st.markdown("***")
 
     data_dir = os.path.join(os.path.dirname(__file__),  conf.path['data']['outdoor_route_data'])
 
-    # stacked_route data 생성
-    raw_data_dir = os.path.join(os.path.dirname(__file__),  conf.path['data']['raw_outdoor_route_data'])
+    if os.path.isfile(data_dir):
+       pass
+    else:
+        # 파일 생성하고갈게요
+        raw_data_dir = os.path.join(os.path.dirname(__file__), conf.path['data']['raw_outdoor_route_data'])
+        RouteDE = RouteDataExtractor(raw_data_dir)
+        RouteDE.loop_genDF()
 
-    # stacked data 가 없을경우 생성
-    RouteDE = RouteDataExtractor(raw_data_dir)
-    RouteDE.loop_genDF()
 
     travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
     travel_data = outdoor_Route_HANDLER.preproc(travel_data)
@@ -54,8 +54,11 @@ def geo_workout(conf):
     upperDF = travel_data.query('cluster == 1')
     upperDF = upperDF[['latitude', 'longitude', 'date', 'date_in_str']]
     lowerDF = travel_data.query('cluster == 0')
-
+    """
+    누가 위로갈지는 클러스터맘인데,, 이거 정할수없을까요
+    """
     st.map(upperDF)
+
     st.map(lowerDF)
 
     if show_heatmap:
