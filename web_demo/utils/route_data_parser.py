@@ -16,7 +16,20 @@ from pandas import DataFrame
 
 
 ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
-ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
+# ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
+
+def gen_file_path(dir):
+    """
+    상위경로에서 data/~를 가져오도록
+    """
+    try:
+        file_name = f"data/{dir}.csv"
+        res = os.path.join(os.path.dirname(__file__), file_name)
+        return res
+
+    except Exception as e:
+        print("error at gen_file_path", e)
+        return -1
 
 class RouteDataExtractor(object):
 
@@ -43,7 +56,7 @@ class RouteDataExtractor(object):
             lst_gpxPool.append(self.gen_MassRouteDF(self.gpxHandler))
         df = pd.concat(lst_gpxPool)
 
-        data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/stacked_route_data.csv')
+        data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/stacked_route_data.csv')
         df.to_csv(data_dir)  # file path, f
         print('for generating all cardio workouts')
 
@@ -114,6 +127,7 @@ class RouteDataExtractor(object):
 
 if __name__ == '__main__':
     data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/*')
+    data_dir = gen_file_path("workout-routes/*")
     handler = RouteDataExtractor(data_dir)
     handler.loop_genDF()
 

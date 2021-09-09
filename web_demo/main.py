@@ -29,23 +29,19 @@ def main():
 	st.markdown("<h1 style='text-align: center; color: red;'> HealthCare </h1>", unsafe_allow_html=True)
 	st.sidebar.header('main')
 
-	menu = ["Home", 'profile', "운동기록", "유산소기록", 'judo ippon videos', 'about']
+	menu = ["Home", "운동기록", "유산소기록", 'judo ippon videos', 'about']
 	choice = st.sidebar.radio("", menu)
 
 	if choice == menu[0]:
 		Home(conf)
 
 	elif choice == menu[1]:
-		bodyspec(conf)
-
-	elif choice == menu[2]:
 		Dataset(conf)
 
-	elif choice == menu[3]:
+	elif choice == menu[2]:
 		geo_workout(conf)
 
-	elif choice == menu[4]:
-		# pass
+	elif choice == menu[3]:
 		Judo(conf)
 
 	else:

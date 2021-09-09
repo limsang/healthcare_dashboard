@@ -3,11 +3,8 @@ import pandas as pd
 
 from utils.health_data_parser import HealthDataExtractor
 from xml.etree import ElementTree as ET
-
-from DFhandler.HeartRate import HeartRate
 from DFhandler.Workout import Workout
-from DFhandler.StepCount import StepCount
-from DFhandler.RestingHeartRate import RestingHeartRate
+
 
 VALID_FILE_LIST = ['HeartRate.csv', 'BodyMass.csv', 'Workout.csv', 'StepCount.csv', 'DistanceCycling.csv', 'WalkingAsymmetryPercentage.csv', 'DistanceWalkingRunning.csv',
 'RestingHeartRate.csv', 'SixMinuteWalkTestDistance.csv', 'Height.csv', 'VO2Max.csv', 'HKDataTypeSleepDurationGoal.csv', 'HeartRateVariabilitySDNN.csv',
@@ -57,8 +54,6 @@ def uploadXML_saveCSV():
 
             else:
                 st.sidebar.info("not an valid file")
-
-
 
 
 def Dataset(conf):
