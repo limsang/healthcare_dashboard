@@ -42,9 +42,8 @@ def geo_workout(conf):
     st.write(f"Data Points: {len(travel_data)}")
 
     # Plot the GPS coordinates on the map
-
     upperDF = travel_data.query('cluster == 1')
-    upperDF = upperDF[['latitude','longitude','date','date_in_str']]
+    upperDF = upperDF[['latitude', 'longitude', 'date', 'date_in_str']]
     lowerDF = travel_data.query('cluster == 0')
 
     st.map(upperDF)
@@ -52,7 +51,7 @@ def geo_workout(conf):
 
     if show_heatmap:
         # Plot the heatmap using folium. It is resource intensive!
-        # Set the map to center around Munich, Germany (48.1351, 11.5820)
+        # Set the map to center around 이촌 자이
         map_heatmap = folium.Map(location=[37.518766, 126.97120600000001], zoom_start=11)
 
         # Filter the DF for columns, then remove NaNs

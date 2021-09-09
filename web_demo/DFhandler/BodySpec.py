@@ -7,8 +7,10 @@ import os
 
 def gen_file_path(dir):
     parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
-    parent = os.path.abspath(os.path.join(parent, os.pardir))
-    file_name = f"applewatch_data/{dir}.csv"
+    file_name = f"data/{dir}.csv"
+
+    res = os.path.join(parent, file_name)
+    print("res", res)
     return os.path.join(parent, file_name)
 
 class BodySpec(BaseHandler):
