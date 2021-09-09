@@ -216,6 +216,8 @@ class HealthDataExtractor(object):
         print('\nTags:\n%s\n' % format_freqs(self.tags))
         print('Fields:\n%s\n' % format_freqs(self.fields))
         print('Record types:\n%s\n' % format_freqs(self.record_types))
+        return  format_freqs(self.tags),  format_freqs(self.fields) , format_freqs(self.record_types)
+
 
 
 if __name__ == '__main__':
@@ -223,5 +225,5 @@ if __name__ == '__main__':
     parent = os.path.abspath(os.path.join(parent, os.pardir))
     data_dir = os.path.join(parent, 'applewatch_data/export.xml')
     data = HealthDataExtractor(data_dir)
-    data.report_stats()
+    # data.report_stats()
     data.extract()

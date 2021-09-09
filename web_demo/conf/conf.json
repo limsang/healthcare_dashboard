@@ -15,10 +15,15 @@
 
   "image": {
     "home": {
-      "apple_healthApp_data": "images/apple_healthApp_data_down_1.png"
+      "apple_healthApp_data": "images/sample.jpg"
     }
   },
   "links": {
-    "youtube_main": "https://www.youtube.com/embed/nSw96qUbK9o"
+    "youtube_main": "https://www.youtube.com/embed/YPfAbXayvm8",
+    "youtube_judo_1": "https://www.youtube.com/embed/OM-W09-KLHU",
+    "youtube_judo_2": "https://www.youtube.com/embed/YPfAbXayvm8",
+    "youtube_judo_3": "https://www.youtube.com/embed/Du_U28Lbh8g",
+    "youtube_judo_4": "https://www.youtube.com/embed/DLNFF5evvTI"
+
   }
 }

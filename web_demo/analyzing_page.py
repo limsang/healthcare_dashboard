@@ -18,23 +18,32 @@ VALID_FILE_LIST = ['HeartRate.csv', 'BodyMass.csv', 'Workout.csv', 'StepCount.cs
 
 
 def uploadXML_saveCSV():
-    log_file_in_xml = st.file_uploader("Upload XML", type=['xml'])
-    if st.button("xml데이터 저장"):
-        XML_PATH = 'data/export.xml'
-        """
-        업로드한 파일을 지정된 경로로 복사한다.
-        """
+
+    log_file_in_xml = st.sidebar.file_uploader("Upload XML", type=['xml'])
+
+    if st.sidebar.button("xml데이터 저장"):
         if log_file_in_xml is not None:
-            tree = ET.parse(log_file_in_xml)
-            tree.write(XML_PATH)
-            del tree
+            st.sidebar.info(log_file_in_xml)
+            XML_PATH = 'data/export.xml'
+            """
+            업로드한 파일을 지정된 경로로 복사한다.
+            """
+            if log_file_in_xml is not None:
+                tree = ET.parse(log_file_in_xml)
+                tree.write(XML_PATH)
+                del tree
 
-            data = HealthDataExtractor(XML_PATH)
-            data.report_stats()
-            data.extract()
+                data = HealthDataExtractor(XML_PATH)
 
-        else:
-            st.info("not an valid file")
+                tag, fields, record_types = data.report_stats()
+                tag += fields
+                tag += record_types
+
+                st.sidebar.info(tag)
+                data.extract()
+
+            else:
+                st.sidebar.info("not an valid file")
 
 def Dataset(conf):
 
@@ -43,10 +52,8 @@ def Dataset(conf):
     StepCount_HANDLER = StepCount()
     HeartRate_HANDLER = HeartRate()
 
-    tmp = None
-    c = None
-    st.title("XML 업로드")
-    st.info("추출한 XML 자료를 업로드한다")
+    st.sidebar.title("XML 업로드")
+    st.sidebar.info("추출한 XML 자료를 업로드한다")
     uploadXML_saveCSV()
     st.markdown("***")
 
