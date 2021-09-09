@@ -48,6 +48,7 @@ class RouteDataExtractor(object):
         """
 
         file_list = glob.glob(self.LOCATION)
+        print("file_list", file_list)
         file_list = [file for file in file_list if file.endswith(".gpx")]
 
         lst_gpxPool = list()
@@ -126,8 +127,9 @@ class RouteDataExtractor(object):
 
 
 if __name__ == '__main__':
-    data_dir = os.path.join(ROOT_DIRECTORY, 'applewatch_data/workout-routes/*')
-    data_dir = gen_file_path("workout-routes/*")
+    data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/*')
+    # data_dir = gen_file_path("data/workout-routes/*")
+    print("data_dir", data_dir)
     handler = RouteDataExtractor(data_dir)
     handler.loop_genDF()
 

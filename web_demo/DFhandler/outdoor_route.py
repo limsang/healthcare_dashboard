@@ -14,17 +14,20 @@ class OutdoorRoute(BaseHandler):
 
     @st.cache
     def load_from_csv(self, ROOT_DIRECTORY):
-        travel_log = pd.read_csv(ROOT_DIRECTORY)
+        try:
+            travel_log = pd.read_csv(ROOT_DIRECTORY)
 
-        travel_log = travel_log[['Latitude', 'Longitude', 'speed_km_per_hour', 'Speed', 'Time']]
-        travel_log["Time"] = pd.to_datetime(travel_log['Time']).map(get_hour)
-        travel_log['date_in_str'] = travel_log['Time'].astype(str)
-        travel_log["date"] = pd.to_datetime(travel_log["Time"])
+            travel_log = travel_log[['Latitude', 'Longitude', 'speed_km_per_hour', 'Speed', 'Time']]
+            travel_log["Time"] = pd.to_datetime(travel_log['Time']).map(get_hour)
+            travel_log['date_in_str'] = travel_log['Time'].astype(str)
+            travel_log["date"] = pd.to_datetime(travel_log["Time"])
 
-        travel_log['row_number'] = np.arange(len(travel_log))
-        travel_log.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}, inplace=True)
+            travel_log['row_number'] = np.arange(len(travel_log))
+            travel_log.rename(columns={"Latitude": "latitude", "Longitude": "longitude"}, inplace=True)
 
-        return travel_log
+            return travel_log
+        except Exception as e:
+            print("errrrrr",e )
 
     def preproc(self, route):
         _route = route
@@ -49,5 +52,6 @@ class OutdoorRoute(BaseHandler):
 
     def analysis_with_model(self):
         pass
+
     def visualize(self):
         pass

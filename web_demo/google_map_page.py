@@ -6,9 +6,8 @@ import folium
 from streamlit_folium import folium_static
 from dotenv import load_dotenv # python-dotenv
 import os
-
-ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
-# ROOT_DIRECTORY = os.path.abspath(os.path.join(ROOT_DIRECTORY, os.pardir))
+from utils.route_data_parser import RouteDataExtractor
+# ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
 from DFhandler.outdoor_route import OutdoorRoute
 
 import pytz
@@ -20,8 +19,18 @@ def geo_workout(conf):
     load_dotenv()
     outdoor_Route_HANDLER = OutdoorRoute()
 
+
     st.markdown("***")
-    data_dir = os.path.join(ROOT_DIRECTORY,  conf.path['data']['outdoor_route_data'])
+
+    data_dir = os.path.join(os.path.dirname(__file__),  conf.path['data']['outdoor_route_data'])
+
+    # stacked_route data 생성
+    raw_data_dir = os.path.join(os.path.dirname(__file__),  conf.path['data']['raw_outdoor_route_data'])
+
+    # stacked data 가 없을경우 생성
+    RouteDE = RouteDataExtractor(raw_data_dir)
+    RouteDE.loop_genDF()
+
     travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
     travel_data = outdoor_Route_HANDLER.preproc(travel_data)
 
