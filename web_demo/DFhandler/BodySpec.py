@@ -98,6 +98,8 @@ class BodySpec(BaseHandler):
         else:
             st.title(f'BMI: {BMI} ?????? 금식하세요')
 
+        st.markdown("***")
+
         cols = st.beta_columns(2)
 
         chartBodyMass = alt.Chart(BodyMass.query('type=="BodyMass"')).mark_circle(opacity=0.9).encode(
@@ -112,7 +114,7 @@ class BodySpec(BaseHandler):
         chartBodyMass.title = "Body Weight"
         chartBodyMass.encoding.x.title = "timeline"
         chartBodyMass.encoding.y.title = "Weight (kg)"
-        cols[0].title("체중변화")
+        cols[0].title("Wights")
         cols[0].altair_chart(chartBodyMass, use_container_width=True)
 
 
@@ -128,7 +130,7 @@ class BodySpec(BaseHandler):
         ).properties(width=50, height=250).add_selection(brush)
 
 
-        cols[0].title("평균 음량")
+        cols[0].title("Headphone volumes")
         moving_average_value = cols[0].slider("이동평균값", 0, 100, 10)
         HeadphoneAudioExposure['mv_avg'] = HeadphoneAudioExposure['value'].rolling(window=moving_average_value).mean()
         HeadphoneAudioExposure['dbspl_norm'] = HeadphoneAudioExposure.apply(lambda x: dbspl_norm(x["mv_avg"]),axis=1)
@@ -141,6 +143,5 @@ class BodySpec(BaseHandler):
         )
 
         cols[0].altair_chart(HeadphoneAudioExposure_chart, use_container_width=True)
-
         cols[0].title("기기별 평균 음량")
         cols[0].altair_chart(week_HeadphoneAudioExposure_chart, use_container_width=False)

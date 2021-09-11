@@ -4,12 +4,12 @@ from analyzing_page import Dataset
 from google_map_page import geo_workout
 from notice_page import Notice
 from judo_page import Judo
-
+import sys
 from conf.conf import conf as cf
-
 from bodyspec_page import bodyspec
-
-
+from streamlit import cli as stcli
+import subprocess
+import os
 def main():
 	"""
 	set_page_config
@@ -29,7 +29,8 @@ def main():
 	st.markdown("<h1 style='text-align: center; color: red;'> HealthCare </h1>", unsafe_allow_html=True)
 	st.sidebar.header('main')
 
-	menu = ["Home", "운동기록", "유산소기록", 'judo ippon videos', 'about']
+
+	menu = ["Home", "workouts", "cardios", 'judo_videos', 'about']
 	choice = st.sidebar.radio("", menu)
 
 	if choice == menu[0]:
@@ -48,5 +49,10 @@ def main():
 		Notice(conf)
 
 
+
 if __name__ == '__main__':
-	main()
+	if st._is_running_with_streamlit:
+		main()
+	else:
+		sys.argv = ["streamlit", "run", sys.argv[0], "--server.maxUploadSize=1028"]
+		sys.exit(stcli.main())

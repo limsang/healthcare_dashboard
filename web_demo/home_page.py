@@ -21,7 +21,6 @@ def Home(conf):
     신체스펙을 생성하는 csv 파일들을 모두 전달한다.
     """
     csv_list = list()
-
     csv_list.append(BodyMass_dlr)
     csv_list.append(V02Max_dlr)
     csv_list.append(Height_dlr)
