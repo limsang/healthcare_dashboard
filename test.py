@@ -4,6 +4,7 @@ import json
 import os
 import time
 # Create your views here.
+
 import datetime
 from elasticsearch import Elasticsearch, RequestError
 es = Elasticsearch('0.0.0.0:9200')
