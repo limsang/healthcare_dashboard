@@ -9,6 +9,8 @@ from elasticsearch import Elasticsearch, RequestError
 es = Elasticsearch('0.0.0.0:9200')
 print("test started!")
 
+
+
 if not es.ping():
     print("--- ES Connection failed --")
     raise ValueError("Connection failed")
