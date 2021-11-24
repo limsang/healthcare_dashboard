@@ -38,6 +38,8 @@ class HealthDataExtractor(object):
   # Create index
   self.es.indices.create(INDEX)
 
+
+
  def gen_step_index(self):
 
   steps = pd.read_csv("data/StepCount.csv")

@@ -14,7 +14,6 @@ from collections import Counter, OrderedDict
 reload(sys)
 sys.setdefaultencoding("UTF-8")
 
-
 # 한글 인토딩 이슈 해결
 __version__ = '1.3'
 
