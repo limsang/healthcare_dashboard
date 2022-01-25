@@ -10,11 +10,9 @@ import sys
 
 from xml.etree import ElementTree
 from collections import Counter, OrderedDict
-# from imp import reload
-# reload(sys)
-# sys.setdefaultencoding("UTF-8")
 
-
+# data path
+PATH_RAWDATA = "data/export.xml"
 # 한글 인코딩 이슈 해결
 __version__ = '1.3'
 
@@ -130,7 +128,7 @@ class HealthDataExtractor(object):
 
     def report(self, msg, end='\n'):
         if self.verbose:
-            # print(msg, end=end)
+            print(msg, end=end)
             sys.stdout.flush()
 
     def count_tags_and_fields(self):
@@ -207,19 +205,17 @@ class HealthDataExtractor(object):
             f.close()
             self.report('Written %s data.' % abbreviate(kind))
 
-    def extract(self):
-        self.open_for_writing()
-        self.write_records()
-        self.close_files()
-
     def report_stats(self):
         print('\nTags:\n%s\n' % format_freqs(self.tags))
         print('Fields:\n%s\n' % format_freqs(self.fields))
         print('Record types:\n%s\n' % format_freqs(self.record_types))
 
+    def extract(self):
+        self.open_for_writing()
+        self.write_records()
+        self.close_files()
 
 if __name__ == '__main__':
-
-    data = HealthDataExtractor("data/export.xml")
+    data = HealthDataExtractor(PATH_RAWDATA)
     data.report_stats()
     data.extract()

@@ -8,7 +8,6 @@ def Home(conf):
     st.title("얼마나 흘렸는지 분석해보자")
     st.markdown("***")
 
-
     col1, col2 = st.beta_columns((1, 1))
     with col1:
         st.title("What It's all about...")

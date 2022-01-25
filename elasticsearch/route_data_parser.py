@@ -35,7 +35,7 @@ class HealthDataExtractor(object):
             # self.gen_routeDF(self.gpxHandler, gpxfileName)
             lst_gpxPool.append(self.gen_MassRouteDF(self.gpxHandler))
         df = pd.concat(lst_gpxPool)
-        df.to_csv(f'dsafsdf.csv')  # file path, f
+        # df.to_csv(f'dsafsdf.csv')  # file path, f
         print('for generating all cardio workouts')
 
     def gen_MassRouteDF(self, gpxHandler):
@@ -204,7 +204,6 @@ class HealthDataExtractor(object):
 
 if __name__ == '__main__':
     handler = HealthDataExtractor()
-
     # path = "data/workout-routes"
     handler.loop_genDF()
 

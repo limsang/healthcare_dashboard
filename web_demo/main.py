@@ -4,7 +4,6 @@ from analyzing_page import Dataset
 from google_map_page import geo_workout
 
 from conf.conf import conf as cf
-
 from bodyspec_page import bodyspec
 
 menu = ["Home", 'profile', "운동기록", "유산소기록", 'about']

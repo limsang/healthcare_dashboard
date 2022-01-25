@@ -1,5 +1,4 @@
 #!/bin/zsh
-
 cd ..
 source venv/bin/activate
 #pip list
