@@ -13,6 +13,7 @@ from collections import Counter, OrderedDict
 
 # data path
 PATH_RAWDATA = "data/export.xml"
+PATH_EXTRACTED = "/extracted_health_data"
 # 한글 인코딩 이슈 해결
 __version__ = '1.3'
 
@@ -115,11 +116,15 @@ class HealthDataExtractor(object):
     def __init__(self, path, verbose=VERBOSE):
         self.in_path = path
         self.verbose = verbose
-        self.directory = os.path.abspath(os.path.split(path)[0])
+        self.directory = os.path.abspath(os.path.split(path)[0]) + PATH_EXTRACTED
+        # self.save_directory = os.path.abspath(os.path.split(path)[0])
+
+        # print("self.directory", self.directory, os.path.split(path)[0], os.path.abspath)
         with open(path) as f:
             self.report('Reading data from %s . . . ' % path, end='')
             self.data = ElementTree.parse(f)
             self.report('done')
+
         self.root = self.data._root
         self.nodes = list(self.root)
         self.n_nodes = len(self.nodes)
@@ -172,7 +177,9 @@ class HealthDataExtractor(object):
         self.handles = {}
         self.paths = []
         for kind in (list(self.record_types) + list(self.other_types)):
+
             path = os.path.join(self.directory, '%s.csv' % abbreviate(kind))
+
             f = open(path, 'w')
             headerType = (kind if kind in ('Workout', 'ActivitySummary')
                                else 'Record')
