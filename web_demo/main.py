@@ -1,11 +1,11 @@
 import streamlit as st
-from home import Home
+from home_page import Home
 from analyzing_page import Dataset
-from google_map import geo_workout
+from google_map_page import geo_workout
 
 from conf.conf import conf as cf
 
-from bodyspec import bodyspec
+from bodyspec_page import bodyspec
 
 menu = ["Home", 'profile', "운동기록", "유산소기록", 'about']
 def main():
@@ -21,9 +21,7 @@ def main():
 	)
 	conf = cf()
 
-
-
-	st.markdown("<h1 style='text-align: center; color: red;'>👑‍</h1>", unsafe_allow_html=True)
+	st.markdown("<h1 style='text-align: center; color: red;'>Health Care‍</h1>", unsafe_allow_html=True)
 
 	choice = st.sidebar.radio("Menu", menu)
 

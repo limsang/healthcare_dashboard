@@ -198,8 +198,6 @@ class Workout(BaseHandler):
         """
         헬스
         """
-
-        # print("StrengthTraining", StrengthTraining)
         StrengthTraining_intensity = alt.Chart(StrengthTraining).mark_bar(opacity=1.0).encode(
             x='date:T',
             y=alt.Y('intensity:Q', stack=None),

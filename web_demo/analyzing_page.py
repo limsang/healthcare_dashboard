@@ -18,8 +18,8 @@ VALID_FILE_LIST = ['HeartRate.csv', 'BodyMass.csv', 'Workout.csv', 'StepCount.cs
 
 
 def uploadXML_saveCSV():
-    log_file_in_xml = st.file_uploader("Upload XML", type=['xml'])
-    if st.button("xml데이터 저장"):
+    log_file_in_xml = st.sidebar.file_uploader("Upload XML", type=['xml'])
+    if st.sidebar.button("xml데이터 저장"):
         XML_PATH = 'data/export.xml'
         """
         업로드한 파일을 지정된 경로로 복사한다.
@@ -43,15 +43,15 @@ def Dataset(conf):
     StepCount_HANDLER = StepCount()
     HeartRate_HANDLER = HeartRate()
 
-    tmp = None
-    c = None
-    st.title("XML 업로드")
-    st.info("추출한 XML 자료를 업로드한다")
+    # choice = st.sidebar.radio("Menu", menu)
+
+    st.sidebar.title("XML 업로드")
+    st.sidebar.info("추출한 XML 자료를 업로드한다")
     uploadXML_saveCSV()
-    st.markdown("***")
+    st.sidebar.markdown("***")
 
     st.title("그래프 조회")
-    st.markdown("-> 조회하고자 하는 데이터셋을 업로드 하여 분석결과를 조회한다")
+    st.info("-> 조회하고자 하는 데이터셋을 업로드 하여 분석결과를 조회한다")
     data_file = st.file_uploader("Upload CSV", type=['csv'])
 
     if st.button("분석결과 조회"):
