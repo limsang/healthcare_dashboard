@@ -54,4 +54,3 @@ $sudo npm install -g localtunnel
 $ lt --port [사용포트번호] --subdomain eames --print-requests
 
 출처: https://kibua20.tistory.com/151 [모바일 SW 개발자가 운영하는 블로그:티스토리]
- 
