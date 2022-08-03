@@ -92,7 +92,6 @@ class Workout(BaseHandler):
         fft_real_value = np.abs(fft)
         StrengthTraining_fft_duration = pd.DataFrame({'f_per_year': f_per_year, 'fft_real_value': fft_real_value})
 
-
         StrengthTraining_week = StrengthTraining.groupby(by=['weekday'], as_index=False).mean()
 
         # 무산소 운동
@@ -203,7 +202,6 @@ class Workout(BaseHandler):
         헬스
         """
 
-        # print("StrengthTraining", StrengthTraining)
         StrengthTraining_intensity = alt.Chart(StrengthTraining).mark_bar(opacity=1.0).encode(
             x='date:T',
             y=alt.Y('intensity:Q', stack=None),
@@ -224,11 +222,6 @@ class Workout(BaseHandler):
 
 
         StrengthTraining_fft_duration_chart.title = "주기"
-        # StrengthTraining_fft_duration_chart.encoding.x.title = "timeline(Y-M-D)"
-        # StrengthTraining_fft_duration_chart.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
-
-
-
         base = alt.Chart(StrengthTraining_week.query('duration > 0')).encode(
             x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],axis=alt.Axis(title=None, labelAngle=0))
         )

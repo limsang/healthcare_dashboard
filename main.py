@@ -41,8 +41,6 @@ def main(custom_logger):
 
 	최상단에서 설정해주지않으면 커스텀 config 설정과 중복으로 인식해서 실행불가
 	"""
-
-
 	conf = cf()
 
 	st.markdown("<h1 style='text-align: center; color: red;'> HealthCare </h1>", unsafe_allow_html=True)
