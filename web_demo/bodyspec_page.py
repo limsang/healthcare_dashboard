@@ -3,7 +3,7 @@ import streamlit as st
 import os
 from DFhandler.BodySpec import BodySpec
 import awesome_streamlit as ast
-import cv2 #pip install opencv-python
+# import cv2 #pip install opencv-python
 
 BodyMass_dlr = "BodyMass"
 V02Max_dlr = "VO2Max"

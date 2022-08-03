@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 import awesome_streamlit as ast
-import cv2 #pip install opencv-python
+# import cv2 #pip install opencv-python
 def Notice(conf):
 
     st.title("얼마나 흘렸는지 분석해보자")
@@ -33,10 +33,10 @@ def Notice(conf):
     with col2:
         st.title("Apple guide")
 
-        if os.path.exists(os.path.join(os.getcwd(), 'images', 'apple_healthApp_data_down_1.png')):
-            image = cv2.imread( conf.path['image']['home']['apple_healthApp_data'])
-            st.image(image, use_column_width=True, clamp=True)
-        else:
-            st.subheader("image load failed")
+        # if os.path.exists(os.path.join(os.getcwd(), 'images', 'apple_healthApp_data_down_1.png')):
+        #     image = cv2.imread( conf.path['image']['home']['apple_healthApp_data'])
+        #     st.image(image, use_column_width=True, clamp=True)
+        # else:
+        #     st.subheader("image load failed")
 
         st.success(conf.path['email']['limsang'])

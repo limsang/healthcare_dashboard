@@ -16,7 +16,6 @@ class OutdoorRoute(BaseHandler):
     def load_from_csv(self, ROOT_DIRECTORY):
         try:
             travel_log = pd.read_csv(ROOT_DIRECTORY)
-
             travel_log = travel_log[['Latitude', 'Longitude', 'speed_km_per_hour', 'Speed', 'Time']]
             travel_log["Time"] = pd.to_datetime(travel_log['Time']).map(get_hour)
             travel_log['date_in_str'] = travel_log['Time'].astype(str)

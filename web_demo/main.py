@@ -10,6 +10,7 @@ from bodyspec_page import bodyspec
 from streamlit import cli as stcli
 import subprocess
 import os
+
 def main():
 	"""
 	set_page_config
@@ -48,11 +49,11 @@ def main():
 	else:
 		Notice(conf)
 
-
-
 if __name__ == '__main__':
 	if st._is_running_with_streamlit:
 		main()
+
+
 	else:
 		sys.argv = ["streamlit", "run", sys.argv[0], "--server.maxUploadSize=1028"]
 		sys.exit(stcli.main())

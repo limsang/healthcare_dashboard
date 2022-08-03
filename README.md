@@ -1,12 +1,11 @@
-# healthcare_dashboard GROUND
+# healthcare_dashboard
 > 헬스케어 대시보드, 건강과 관련된 내용을 수집하여 대시보드로 제공한다.
 
 > 예측모델을 통해 ~를 제공한다.
  
 > 본인의 운동이력을 업로드한다.
 
-# 1. Apple건강앱 Data ELK 연동
-
+# 1. how to run
 
 ##### 애플워치, 애플 기본 건강앱에서 기록중인 데이터를 ELK에 저장한다.
 
@@ -19,38 +18,8 @@ health_data_parser.py 실행
 
 ## step.2 gpx데이터 csv로 저장
 
-## step.3 csv를 elasticsearch index로 생성
-* apple_health_data2elastic.py를 실행.
-- mapping은 2가지로, 운동에 대한 인덱스와 기존 정보(걸음, 심박수 등)에 대한 mapping
-json 파일로 관리중...
-- 2021-03-01 기준으로 운동과 관련된 mapping이 추가됨.
-
-## step.4 ndjson파일을 통해 키바나 대시보드 작성하기 (optional)
-
-[가이드 링크](https://support.logz.io/hc/en-us/articles/210207225-How-can-I-export-import-Dashboards-Searches-and-Visualizations-from-my-own-Kibana-)
-  
-### 이게뭐냐....??
-
-> 미리 작성한 대시보드가 있다면, 이걸 export해서 나중에 동일한 포맷의 대시보드를 생성할수있게 해주는 작업
-1. 키바나의 Saved Object로 이동 
-2. 저장한 대시보드를 선택
-3. Export를 클릭하면 ndjson 파일을 다운받을 수 있다.
-4. 앞의 가이드대로 인덱스패턴을 생성한 후 Import하면 대시보드를 볼 수 있음.
-
----
-
-1. Step 7: Select the button for "Create index pattern" and then type in the name of one of your indexes like steps and hit "Next Step."
-2. Step 8: Then use the time field option and select date and hit "Create index pattern."
-3. Repeat 6-8 to create additional index patterns for hr and resting_hr.
-4. Step 9: Navigate to the menu item "Saved Objects" under Kibana.
-5. Step 10: Select option for Import and either drag and drop or select the file apple_health_elastic_dashboard.ndjson which will create a few sample charts and an Apple Health Dashboard which you can view in Kibana.
-
-
 --- 
 
-# 2.  Django Web App
--> elk CRUD용 API와 머신러닝 API를 생성한다. 
--> 웹뷰를 통해 여러 정보를 추가로 적재한다. 
 ### 도커 빌드 및 실행
 ~~~sh
 docker-compose up --build
@@ -70,13 +39,19 @@ http://127.0.0.1:8000/apmall/item2vec/sample/test
 
 --- 
 
-# 3. React frontend
--> API호출용 & 엘라스틱서치 활용을 위한 프론트를 개발한다.
+
+# 로컬 PC 외부로 공유
+## localtunnel 
 
 
+- 로컬서버를 외부로 등록시켜주는 node.js기반의 오픈소스
+- 오픈소스임으로.. 가끔 서버 떨어질 때가있음
 
-# elk stack
--> docker로 elk stack을 배포한다. 
+$sudo apt install npm
 
+$sudo npm install -g localtunnel
 
+$ lt --port [사용포트번호] --subdomain eames --print-requests
 
+출처: https://kibua20.tistory.com/151 [모바일 SW 개발자가 운영하는 블로그:티스토리]
+ 

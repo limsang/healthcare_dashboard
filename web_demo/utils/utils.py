@@ -18,7 +18,7 @@ def create_dataframe_with_initial_columns(df):
     # parse out date and time elements as local time
     df['startDate'] = pd.to_datetime(df['startDate'])
     # parse to unix seconds since epoch
-    df['timestamp'] = pd.to_datetime(df['startDate']).astype(int) / 10 ** 9
+    df['timestamp'] = pd.to_datetime(df['startDate']).astype(int) / 10 ** 9 #view astype
     df['dow'] = df['startDate'].map(get_day_of_week)
     df['year'] = df['startDate'].map(get_year)
     df['month'] = df['startDate'].map(get_month)

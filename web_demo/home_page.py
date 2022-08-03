@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 import awesome_streamlit as ast
-import cv2 #pip install opencv-python
+# import cv2 #pip install opencv-python
 from DFhandler.BodySpec import BodySpec
 
 BodyMass_dlr = "BodyMass"
