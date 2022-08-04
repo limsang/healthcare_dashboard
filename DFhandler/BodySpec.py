@@ -148,6 +148,8 @@ class BodySpec(BaseHandler):
             color="dbspl_norm"
         )
 
+
+
         cols[0].altair_chart(HeadphoneAudioExposure_chart, use_container_width=True)
         cols[0].title("요일별 평균 음량")
         cols[0].altair_chart(week_HeadphoneAudioExposure_chart, use_container_width=False)

@@ -53,11 +53,22 @@ class Workout(BaseHandler):
         def gen_overall(Workout):
             """
             전체 OVERALL
+            최대 최소값은 제거한다
             """
-            overall = Workout[['duration', 'workoutActivityType', 'totalEnergyBurned', 'date']]  # .query('duration>0')
+            def modify_activityType(data):
+                try:
+                    return data[21:]
+
+                except Exception as e:
+                    pass
+
+            overall = Workout[['duration', 'workoutActivityType', 'totalEnergyBurned', 'date']].query('duration > 0')
             overall['date'] = pd.to_datetime(overall['date'])
             overall['date'] = overall['date'].astype(str)
+            overall = overall.loc[overall['duration'] != overall['duration'].max()]
+            overall = overall.loc[overall['duration'] != overall['duration'].min()]
             overall['workoutActivityType'].replace({0: "NULL"}, inplace=True)
+            overall['workoutActivityType'] = overall['workoutActivityType'].map(modify_activityType)  # 이름 너무 길어 잘라
             return overall
 
         def gen_weekdayCount(Workout):
@@ -115,6 +126,7 @@ class Workout(BaseHandler):
             StrengthTraining['duration_indicator'] = StrengthTraining["duration"] / StrengthTraining["avg_duration"]
             StrengthTraining['intensity'] = StrengthTraining['duration_indicator'] * StrengthTraining['totalEnergyBurned'] / StrengthTraining['duration']
             StrengthTraining = StrengthTraining.fillna(0)
+            StrengthTraining = StrengthTraining.loc[StrengthTraining['intensity'] != StrengthTraining['intensity'].max()]
             StrengthTraining['weekday'].replace({0: "NULL"}, inplace=True)
             return StrengthTraining
 
@@ -159,11 +171,13 @@ class Workout(BaseHandler):
 
     def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout):
 
-        overallChart = alt.Chart(overall).mark_bar(interpolate='monotone').encode(
+
+        overallChart = alt.Chart(overall).mark_line(interpolate='monotone').encode(
             x='date:T',
             y=alt.Y('duration', stack=None),
             color="workoutActivityType"
-        )
+        ).configure_legend(orient='bottom') # 레전드 맨 아래
+
         overallChart.title = "OVERALL"
         overallChart.encoding.x.title = "timeline"
         overallChart.encoding.y.title = "duration (Minutes)"
@@ -259,12 +273,11 @@ class Workout(BaseHandler):
         StrengthTraining_intensity.encoding.x.title = "timeline(Y-M-D)"
         StrengthTraining_intensity.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
         StrengthTraining_fft_duration = StrengthTraining_fft_duration[10:]
-
         StrengthTraining_fft_duration_chart = alt.Chart(StrengthTraining_fft_duration).mark_bar().encode(
             x='f_per_year',
-            y='fft_real_value',
+            y=alt.Y('fft_real_value:Q', stack=None),
+            color="fft_real_value"
         )
-
 
         StrengthTraining_fft_duration_chart.title = "주기"
         base = alt.Chart(StrengthTraining_week.query('duration > 0')).encode(
@@ -325,9 +338,6 @@ class Workout(BaseHandler):
         """
         overall
         """
-
-
-
         st.title("Cardio")
         st.altair_chart(CardioWorkout_overall, use_container_width=True)
         st.altair_chart(CardioWorkout_intensity_Chart, use_container_width=True)
@@ -356,8 +366,11 @@ class Workout(BaseHandler):
         """
         요일별 gym
         """
+        # x = alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
 
-        base = alt.Chart(SeasonWorkout).encode(x=alt.X('season', axis=alt.Axis(title=None, labelAngle=0)))
+        base = alt.Chart(SeasonWorkout).encode(x=alt.X('season',
+                                    sort=['spring', 'summer', 'fall', 'winter'],
+                                    axis=alt.Axis(title=None, labelAngle=0)))
         area = base.mark_line(stroke='red', interpolate='monotone').encode(
             alt.Y('duration',
                   scale=alt.Scale(domain=[SeasonWorkout['duration'].min(),
