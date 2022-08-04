@@ -64,15 +64,16 @@ def Workout_Analysis(conf):
     st.sidebar.info("추출한 XML 자료를 업로드한다")
     uploadXML_saveCSV()
     st.markdown("***")
-
-
     file = gen_file_path('Workout')
+
     if file != -1:
         df = pd.read_csv(file)
-        WorkoutDF = Workout_HANDLER.load_from_csv(df)
-        overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer,Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration = Workout_HANDLER.preproc(WorkoutDF)
 
-        Workout_HANDLER.visualize(overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration)
+        WorkoutDF = Workout_HANDLER.load_from_csv(df)
+
+        overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer,Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout = Workout_HANDLER.preproc(WorkoutDF)
+
+        Workout_HANDLER.visualize(overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout)
 
     else:
         st.error("Workout을 진행하지 않았습니다..")

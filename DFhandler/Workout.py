@@ -1,3 +1,4 @@
+import sys
 from DFhandler.handler_base import BaseHandler
 import pandas as pd
 from utils.utils import create_dataframe_with_initial_columns
@@ -5,10 +6,9 @@ import streamlit as st
 import altair as alt
 import numpy as np
 import tensorflow as tf
-
+cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 class Workout(BaseHandler):
-
 
     @st.cache
     def load_from_csv(self, df):
@@ -28,7 +28,7 @@ class Workout(BaseHandler):
 
     def preproc(self, Workout):
 
-        def normalize(df, col):
+        def _normalize(df, col):
             result = df.copy()
             for feature_name in df.columns:
                 max_value = df[col].max()
@@ -36,93 +36,128 @@ class Workout(BaseHandler):
                 result['norm_counts'] = (df[col] - min_value) / (max_value - min_value)
             return result
 
-        cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        def _get_season(data):
 
-        """
-        전체 OVERALL
-        """
+            if data in [12, 1, 2]:
+                return "winter"
 
-        overall = Workout[['duration', 'workoutActivityType', 'totalEnergyBurned', 'date']]  # .query('duration>0')
-        overall['date'] = pd.to_datetime(overall['date'])
-        overall['date'] = overall['date'].astype(str)
-        overall['workoutActivityType'].replace({0: "NULL"}, inplace=True)
+            elif data in [3, 4, 5]:
+                return "spring"
 
+            elif data in [6, 7, 8, 9]:
+                return "summer"
 
-        """
-        요일별 운동횟수를 기록
-        """
-        weekdayCount = Workout.groupby(['weekday']).size().reset_index(name='counts')
-        weekdayCount = normalize(weekdayCount, 'counts')
+            else:
+                return "fall"
 
+        def gen_overall(Workout):
+            """
+            전체 OVERALL
+            """
+            overall = Workout[['duration', 'workoutActivityType', 'totalEnergyBurned', 'date']]  # .query('duration>0')
+            overall['date'] = pd.to_datetime(overall['date'])
+            overall['date'] = overall['date'].astype(str)
+            overall['workoutActivityType'].replace({0: "NULL"}, inplace=True)
+            return overall
 
-        """
-        축구
-        """
+        def gen_weekdayCount(Workout):
+            """
+            요일별 운동횟수를 기록
+            """
+            weekdayCount = Workout.groupby(['weekday']).size().reset_index(name='counts')
+            weekdayCount = _normalize(weekdayCount, 'counts')
+            return weekdayCount
 
-        HKWorkoutActivityTypeSoccer = Workout.query('workoutActivityType =="HKWorkoutActivityTypeSoccer" or workoutActivityType ==0')
-        HKWorkoutActivityTypeSoccer = HKWorkoutActivityTypeSoccer.groupby('date')[['duration', 'durationUnit', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
-        HKWorkoutActivityTypeSoccer['intensity'] = HKWorkoutActivityTypeSoccer['totalEnergyBurned'] / HKWorkoutActivityTypeSoccer['duration'] * 10
-        HKWorkoutActivityTypeSoccer = HKWorkoutActivityTypeSoccer.fillna(0)
+        def gen_gymTraining(Workout, cats):
+            gymTraining = Workout.query("totalDistance <= 0")  # Workout['totalDistance'] == 0 #
+            gymTraining['ExerciseIntensity'] = round(gymTraining['totalEnergyBurned'] / gymTraining['duration'])
+            gymTraining['date'] = pd.to_datetime(gymTraining['date'])
+            gymTraining = gymTraining[['date', 'weekday', 'duration', 'totalEnergyBurned', 'ExerciseIntensity']]
+            gymTraining = gymTraining.set_index('date')
+            # 요일별 운동량을 측정한다.
+            gymTrainingPerWeekday = gymTraining[['duration', 'totalEnergyBurned', 'ExerciseIntensity']].groupby(gymTraining['weekday'])
+            gymTrainingPerWeekday = gymTrainingPerWeekday.mean().reindex(cats)
+            # 인덱스를 일반 컬럼으로 이동
+            gymTrainingPerWeekday = gymTrainingPerWeekday.reset_index()
+            return gymTraining, gymTrainingPerWeekday
 
+        def gen_HKWorkoutActivityTypeSoccer(Workout):
+            """
+            축구
+            """
+            HKWorkoutActivityTypeSoccer = Workout.query('workoutActivityType =="HKWorkoutActivityTypeSoccer" or workoutActivityType ==0')
+            HKWorkoutActivityTypeSoccer = HKWorkoutActivityTypeSoccer.groupby('date')[['duration', 'durationUnit', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
+            HKWorkoutActivityTypeSoccer['intensity'] = HKWorkoutActivityTypeSoccer['totalEnergyBurned'] / HKWorkoutActivityTypeSoccer['duration'] * 10
+            HKWorkoutActivityTypeSoccer = HKWorkoutActivityTypeSoccer.fillna(0)
+            return HKWorkoutActivityTypeSoccer
 
-        Soccer_play_time = Workout.query('workoutActivityType =="HKWorkoutActivityTypeSoccer"')
-        Soccer_play_time = Soccer_play_time.groupby('date')[['duration', 'durationUnit', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
-        Soccer_play_time['intensity'] = Soccer_play_time['totalEnergyBurned'] / Soccer_play_time['duration'] * 10
+        def gen_Soccer_play_time(Workout):
 
-
+            Soccer_play_time = Workout.query('workoutActivityType =="HKWorkoutActivityTypeSoccer"')
+            Soccer_play_time = Soccer_play_time.groupby('date')[['duration', 'durationUnit', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
+            Soccer_play_time['intensity'] = Soccer_play_time['totalEnergyBurned'] / Soccer_play_time['duration'] * 10
+            return Soccer_play_time
         # 유산소 운동
-        CardioWorkout = Workout.query('totalDistance > 0')
-        CardioWorkout = CardioWorkout.groupby('date')[['duration', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
-        CardioWorkout['intensity'] = CardioWorkout['totalEnergyBurned'] / CardioWorkout['duration'] * 10
+        def gen_CardioWorkout(Workout):
+            CardioWorkout = Workout.query('totalDistance > 0')
+            CardioWorkout = CardioWorkout.groupby('date')[['duration', 'totalDistance', 'totalEnergyBurned']].sum().reset_index()
+            CardioWorkout['intensity'] = CardioWorkout['totalEnergyBurned'] / CardioWorkout['duration'] * 10
+            return CardioWorkout
 
-        """
-        헬스
-        """
+        def gen_StrengthTraining(Workout):
+            """
+            헬스
+            """
+            StrengthTraining = Workout.query('workoutActivityType =="HKWorkoutActivityTypeTraditionalStrengthTraining" or workoutActivityType ==0')
+            StrengthTraining = StrengthTraining.groupby(['date', 'weekday', 'month_only'])[['duration', 'totalEnergyBurned']].sum().reset_index()
+            StrengthTraining = StrengthTraining.drop_duplicates(['date'], keep='last')
+            StrengthTraining['avg_duration'] = StrengthTraining["duration"].mean()
+            StrengthTraining['duration_indicator'] = StrengthTraining["duration"] / StrengthTraining["avg_duration"]
+            StrengthTraining['intensity'] = StrengthTraining['duration_indicator'] * StrengthTraining['totalEnergyBurned'] / StrengthTraining['duration']
+            StrengthTraining = StrengthTraining.fillna(0)
+            StrengthTraining['weekday'].replace({0: "NULL"}, inplace=True)
+            return StrengthTraining
 
-        StrengthTraining = Workout.query('workoutActivityType =="HKWorkoutActivityTypeTraditionalStrengthTraining" or workoutActivityType ==0')
-        StrengthTraining = StrengthTraining.groupby(['date', 'weekday', 'month_only'])[['duration', 'totalEnergyBurned']].sum().reset_index()
-        StrengthTraining = StrengthTraining.drop_duplicates(['date'], keep='last')
-        StrengthTraining['avg_duration'] = StrengthTraining["duration"].mean()
-        StrengthTraining['duration_indicator'] = StrengthTraining["duration"] / StrengthTraining["avg_duration"]
-        StrengthTraining['intensity'] = StrengthTraining['duration_indicator'] * StrengthTraining['totalEnergyBurned'] / StrengthTraining['duration']
-        StrengthTraining = StrengthTraining.fillna(0)
-        StrengthTraining['weekday'].replace({0: "NULL"}, inplace=True)
+        def gen_SeasonWorkout(Workout):
+            """
+            헬스 계절별 평균 운동량, 주기
+            """
+            SeasonWorkout = Workout.query('workoutActivityType =="HKWorkoutActivityTypeTraditionalStrengthTraining" or workoutActivityType ==0')
+            SeasonWorkout = SeasonWorkout.query('totalEnergyBurned > 0')
+            SeasonWorkout = SeasonWorkout.query('duration > 0')
+            SeasonWorkout['season'] = SeasonWorkout.month_only.map(_get_season)
+            SeasonWorkout = SeasonWorkout.groupby(['season']).mean()
+            SeasonWorkout['season'] = SeasonWorkout.index
 
-
+            return SeasonWorkout
         # 주기측정용 푸리에 DF
-        fft = tf.signal.rfft(StrengthTraining['duration'])  # Real-valued fast Fourier transform.
-        f_per_dataset = np.arange(0, len(fft))  # fft 전체길이 35045
-        n_samples_h = len(StrengthTraining['duration'])
-        weeks_per_dataset = n_samples_h / 7  # because we use weeks for sampling
-        f_per_year = f_per_dataset / weeks_per_dataset  # sampling frequency
-        fft_real_value = np.abs(fft)
-        StrengthTraining_fft_duration = pd.DataFrame({'f_per_year': f_per_year, 'fft_real_value': fft_real_value})
+        def gen_fft_df(StrengthTraining):
+            fft = tf.signal.rfft(StrengthTraining['duration'])  # Real-valued fast Fourier transform.
+            f_per_dataset = np.arange(0, len(fft))  # fft 전체길이 35045
+            n_samples_h = len(StrengthTraining['duration'])
+            weeks_per_dataset = n_samples_h / 7  # because we use weeks for sampling
+            f_per_year = f_per_dataset / weeks_per_dataset  # sampling frequency
+            fft_real_value = np.abs(fft)
+            StrengthTraining_fft_duration = pd.DataFrame({'f_per_year': f_per_year, 'fft_real_value': fft_real_value})
+            StrengthTraining_week = StrengthTraining.groupby(by=['weekday'], as_index=False).mean()
+            return StrengthTraining_fft_duration, StrengthTraining_week
 
-        StrengthTraining_week = StrengthTraining.groupby(by=['weekday'], as_index=False).mean()
+        StrengthTraining = gen_StrengthTraining(Workout)
+        StrengthTraining_fft_duration, StrengthTraining_week = gen_fft_df(StrengthTraining)
+        weekdayCount = gen_weekdayCount(Workout)
+        Soccer_play_time = gen_Soccer_play_time(Workout)
+        HKWorkoutActivityTypeSoccer = gen_HKWorkoutActivityTypeSoccer(Workout)
+        gymTraining, gymTrainingPerWeekday = gen_gymTraining(Workout, cats)
+        CardioWorkout = gen_CardioWorkout(Workout)
+        overall = gen_overall(Workout)
+        SeasonWorkout = gen_SeasonWorkout(Workout)
 
-        # 무산소 운동
-        weight_trainig_mask = Workout['totalDistance'] == 0
-        weight_training = Workout[weight_trainig_mask]
-        # 운동강도 추가
-        weight_training['ExerciseIntensity'] = round(weight_training['totalEnergyBurned'] / weight_training['duration'])
-
-        gymTraining = weight_training
-        gymTraining['date'] = pd.to_datetime(weight_training['date'])
-        gymTraining = gymTraining[['date', 'weekday', 'duration', 'totalEnergyBurned', 'ExerciseIntensity']]
-        gymTraining = gymTraining.set_index('date')
-
-        # 요일별 운동량을 측정한다.
-        gymTrainingPerWeekday = gymTraining[['duration', 'totalEnergyBurned', 'ExerciseIntensity']].groupby(gymTraining['weekday'])
-        gymTrainingPerWeekday = gymTrainingPerWeekday.mean().reindex(cats)
-        # 인덱스를 일반 컬럼으로 이동
-        gymTrainingPerWeekday = gymTrainingPerWeekday.reset_index()
-
-        return overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration
+        return overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout
 
     def analysis_with_model(self):
         pass
 
-    def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration):
+    def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout):
 
         overallChart = alt.Chart(overall).mark_bar(interpolate='monotone').encode(
             x='date:T',
@@ -132,7 +167,6 @@ class Workout(BaseHandler):
         overallChart.title = "OVERALL"
         overallChart.encoding.x.title = "timeline"
         overallChart.encoding.y.title = "duration (Minutes)"
-
 
         base = alt.Chart(overall).mark_circle(opacity=0.5).transform_fold(
             fold=['duration'],
@@ -144,6 +178,13 @@ class Workout(BaseHandler):
         )
         overall_trend_chart = base + base.transform_loess('date', 'y', groupby=['category']).mark_line(size=5)
         overall_trend_chart.title = '운동강도 추세'
+
+        st.title("OVERALL")
+        st.altair_chart(overallChart, use_container_width=True)
+        st.altair_chart(overall_trend_chart, use_container_width=True)
+        st.markdown("***")
+
+
 
         weekdayCount_Chart = alt.Chart(weekdayCount.query('weekday != 0')).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
             gradient='linear',
@@ -217,8 +258,6 @@ class Workout(BaseHandler):
         StrengthTraining_intensity.title = "헬스 강도"
         StrengthTraining_intensity.encoding.x.title = "timeline(Y-M-D)"
         StrengthTraining_intensity.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
-
-
         StrengthTraining_fft_duration = StrengthTraining_fft_duration[10:]
 
         StrengthTraining_fft_duration_chart = alt.Chart(StrengthTraining_fft_duration).mark_bar().encode(
@@ -235,7 +274,6 @@ class Workout(BaseHandler):
         line = base.mark_line(stroke='#5276A7', interpolate='monotone').encode(alt.Y('intensity', axis=alt.Axis(title='intensity', titleColor='#5276A7')))
         StrengthTraining_week_duration = alt.layer(area, line).resolve_scale(y='independent')
         StrengthTraining_week_duration.title = "요일별 운동 시간 및 강도"
-
 
         base = alt.Chart(StrengthTraining).mark_circle(opacity=0.5).transform_fold(
             fold=['intensity'],
@@ -269,16 +307,11 @@ class Workout(BaseHandler):
         CardioWorkout_intensity_Chart.encoding.x.title = "timeline(Y-M-D)"
         CardioWorkout_intensity_Chart.encoding.y.title = "운동강도 (시간당 칼로리 소모량)"
 
-        base = alt.Chart(CardioWorkout.query('totalDistance > 0')).encode(
-            x=alt.X('date',axis=alt.Axis(title=None, labelAngle=0)))
-
+        base = alt.Chart(CardioWorkout.query('totalDistance > 0')).encode(x=alt.X('date',axis=alt.Axis(title=None, labelAngle=0)))
         area = base.mark_line(stroke='red', interpolate='monotone').encode(alt.Y('totalEnergyBurned', axis=alt.Axis(title='totalEnergyBurned (kcal)', titleColor='red')))
-
         line = base.mark_line(stroke='#5276A7', interpolate='monotone').encode(alt.Y('duration', axis=alt.Axis(title='duration(min)', titleColor='#5276A7')))
-
         CardioWorkout_overall = alt.layer(area, line).resolve_scale(y='independent')
         CardioWorkout_overall.title = "유산소 overall"
-
 
         gymTrainingPerWeekdayChart = alt.Chart(gymTrainingPerWeekday, title="요일별 운동강도").mark_circle().encode(
             x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
@@ -293,10 +326,7 @@ class Workout(BaseHandler):
         overall
         """
 
-        st.title("OVERALL")
-        st.altair_chart(overallChart, use_container_width=True)
-        st.altair_chart(overall_trend_chart, use_container_width=True)
-        st.markdown("***")
+
 
         st.title("Cardio")
         st.altair_chart(CardioWorkout_overall, use_container_width=True)
@@ -322,3 +352,19 @@ class Workout(BaseHandler):
         cols[0].altair_chart(StrengthTraining_week_duration, use_container_width=True)
         cols[1].altair_chart(StrengthTraining_intensity, use_container_width=True)
         st.altair_chart(StrengthTraining_fft_duration_chart, use_container_width=True)
+
+        """
+        요일별 gym
+        """
+
+        SeasonWorkout = SeasonWorkout[['duration', 'season']]
+        SeasonWorkout_chart = alt.Chart(SeasonWorkout).mark_line(point=True, color="#FFAA00").encode(
+            alt.X('season', scale=alt.Scale(zero=False),
+                  sort=['spring','summer','fall','winter'], axis=alt.Axis(title=None, labelAngle=0)),
+            alt.Y('duration', scale=alt.Scale(zero=False))
+        )
+
+        SeasonWorkout_chart.title = "계절별 운동시간"
+        SeasonWorkout_chart.encoding.x.title = "season"
+        SeasonWorkout_chart.encoding.y.title = "duration(min)"
+        st.altair_chart(SeasonWorkout_chart, use_container_width=True)
