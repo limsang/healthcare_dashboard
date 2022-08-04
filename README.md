@@ -12,6 +12,12 @@
 ### 애플워치, 애플 기본 건강앱에서 기록중인 데이터를 rawdata에 업로드한다.
 
 > [로그 데이터 추출방법](http://www.markwk.com/data-analysis-for-apple-health.html)
+1. 건강앱 실행
+2. 프로필 클릭
+3. 가장 하단 "모든 건강 데이터 내보내기" 클릭
+4. 내보내기.xml -> export.xml로 이름변경
+5. utils.health_data_parser.py, route_data_parser.py 실행
+6. csv 파일 생성확인
 
 
 ## step.1 health_data csv로 저장

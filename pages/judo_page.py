@@ -4,9 +4,7 @@ import awesome_streamlit as ast
 
 def Judo(conf):
 
-
     st.text_area('Area for textual entry')
-
     col1, col2 = st.beta_columns((1, 1))
 
     with col1:

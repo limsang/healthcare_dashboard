@@ -57,7 +57,7 @@ class RouteDataExtractor(object):
             lst_gpxPool.append(self.gen_MassRouteDF(self.gpxHandler))
         df = pd.concat(lst_gpxPool)
 
-        data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/stacked_route_data.csv')
+        data_dir = os.path.join(ROOT_DIRECTORY, 'rawdata/workout-routes/stacked_route_data.csv')
         df.to_csv(data_dir)  # file path, f
         print('for generating all cardio workouts')
 
@@ -126,10 +126,10 @@ class RouteDataExtractor(object):
         return df
 
 
-# if __name__ == '__main__':
-#     data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/*')
-#     # data_dir = gen_file_path("data/workout-routes/*")
-#     print("data_dir", data_dir)
-#     handler = RouteDataExtractor(data_dir)
-#     handler.loop_genDF()
+if __name__ == '__main__':
+    data_dir = os.path.join(ROOT_DIRECTORY, 'rawdata/workout-routes/*')
+    # data_dir = gen_file_path("data/workout-routes/*")
+    print("data_dir", data_dir)
+    handler = RouteDataExtractor(data_dir)
+    handler.loop_genDF()
 

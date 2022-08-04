@@ -10,11 +10,6 @@ import sys
 
 from xml.etree import ElementTree
 from collections import Counter, OrderedDict
-# from imp import reload
-# reload(sys)
-# sys.setdefaultencoding("UTF-8")
-
-
 # 한글 인코딩 이슈 해결
 __version__ = '1.3'
 
@@ -219,11 +214,9 @@ class HealthDataExtractor(object):
         return  format_freqs(self.tags),  format_freqs(self.fields) , format_freqs(self.record_types)
 
 
-
 if __name__ == '__main__':
     parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
-    parent = os.path.abspath(os.path.join(parent, os.pardir))
-    data_dir = os.path.join(parent, 'applewatch_data/export.xml')
+    data_dir = os.path.join(parent, 'rawdata/export.xml')
     data = HealthDataExtractor(data_dir)
-    # data.report_stats()
+    data.report_stats()
     data.extract()
