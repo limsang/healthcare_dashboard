@@ -5,6 +5,7 @@ from utils.utils import create_dataframe_with_initial_columns
 import streamlit as st
 import altair as alt
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -67,8 +68,10 @@ class Workout(BaseHandler):
             overall['date'] = overall['date'].astype(str)
             overall = overall.loc[overall['duration'] != overall['duration'].max()]
             overall = overall.loc[overall['duration'] != overall['duration'].min()]
-            overall['workoutActivityType'].replace({0: "NULL"}, inplace=True)
             overall['workoutActivityType'] = overall['workoutActivityType'].map(modify_activityType)  # 이름 너무 길어 잘라
+            overall = overall.reset_index()
+            overall['index'] = overall.index
+
             return overall
 
         def gen_weekdayCount(Workout):
@@ -171,7 +174,6 @@ class Workout(BaseHandler):
 
     def visualize(self, overall, weekdayCount, StrengthTraining, StrengthTraining_week, HKWorkoutActivityTypeSoccer, Soccer_play_time, CardioWorkout, gymTraining, gymTrainingPerWeekday, StrengthTraining_fft_duration, SeasonWorkout):
 
-
         overallChart = alt.Chart(overall).mark_line(interpolate='monotone').encode(
             x='date:T',
             y=alt.Y('duration', stack=None),
@@ -182,6 +184,14 @@ class Workout(BaseHandler):
         overallChart.encoding.x.title = "timeline"
         overallChart.encoding.y.title = "duration (Minutes)"
 
+        scaler = MinMaxScaler()
+        # 스케일을 적용할 column을 정의합니다.
+        scale_cols = ['duration']
+        scaled = scaler.fit_transform(overall[scale_cols])
+        scaled = pd.DataFrame(scaled, columns=scale_cols)
+        scaled = scaled.rename(columns={'duration': 'scaled_duration'})
+        overall = pd.concat([overall, scaled], axis=1)
+
         base = alt.Chart(overall).mark_circle(opacity=0.5).transform_fold(
             fold=['duration'],
             as_=['category', 'y']
@@ -189,6 +199,7 @@ class Workout(BaseHandler):
             alt.X('date:T'),
             alt.Y('y:Q'),
             alt.Color('category:N')
+
         )
         overall_trend_chart = base + base.transform_loess('date', 'y', groupby=['category']).mark_line(size=5)
         overall_trend_chart.title = '운동강도 추세'
@@ -197,8 +208,6 @@ class Workout(BaseHandler):
         st.altair_chart(overallChart, use_container_width=True)
         st.altair_chart(overall_trend_chart, use_container_width=True)
         st.markdown("***")
-
-
 
         weekdayCount_Chart = alt.Chart(weekdayCount.query('weekday != 0')).mark_area(line={'color': 'darkgreen'}, color=alt.Gradient(
             gradient='linear',
@@ -278,8 +287,9 @@ class Workout(BaseHandler):
             y=alt.Y('fft_real_value:Q', stack=None),
             color="fft_real_value"
         )
-
         StrengthTraining_fft_duration_chart.title = "주기"
+
+
         base = alt.Chart(StrengthTraining_week.query('duration > 0')).encode(
             x=alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],axis=alt.Axis(title=None, labelAngle=0))
         )
@@ -366,8 +376,6 @@ class Workout(BaseHandler):
         """
         요일별 gym
         """
-        # x = alt.X('weekday', sort=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']),
-
         base = alt.Chart(SeasonWorkout).encode(x=alt.X('season',
                                     sort=['spring', 'summer', 'fall', 'winter'],
                                     axis=alt.Axis(title=None, labelAngle=0)))

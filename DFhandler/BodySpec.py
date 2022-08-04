@@ -42,11 +42,11 @@ class BodySpec(BaseHandler):
 
             elif csv == "HeadphoneAudioExposure":
                 HeadphoneAudioExposure = create_dataframe_with_initial_columns(df)
+                HeadphoneAudioExposure = HeadphoneAudioExposure.query("value > 0")
                 HeadphoneAudioExposure['device_name'] = HeadphoneAudioExposure.apply(lambda x: HeadphoneAudioExposure_splitter(x["device"], 1),axis=1)
                 HeadphoneAudioExposure = HeadphoneAudioExposure[['value', 'dttm', 'device_name', 'weekday']]
                 HeadphoneAudioExposure = HeadphoneAudioExposure.groupby(["dttm", "device_name", "weekday"]).max(['value']).reset_index()
                 HeadphoneAudioExposure = HeadphoneAudioExposure.fillna(0)
-
                 week_HeadphoneAudioExposure = HeadphoneAudioExposure.groupby(['device_name', 'weekday']).mean().reset_index()
 
             elif csv == "BasalEnergyBurned":
@@ -109,12 +109,12 @@ class BodySpec(BaseHandler):
 
         chartBodyMass = alt.Chart(BodyMass.query('type=="BodyMass"')).mark_circle(opacity=0.9).encode(
             x='date',
-            # y= 'value', scale=alt.Scale(domain=[0, 120])),
-            y = alt.Y('value', scale=alt.Scale(domain=[MIN_BodyMass, MAX_BodyMass + 10])),
-            size='value',
-            color=alt.condition(alt.datum.value > barometer,
-                                alt.value('red'),
-                                alt.value('black'))
+            y = alt.Y('value', scale=alt.Scale(domain=[MIN_BodyMass, MAX_BodyMass])),
+            size = 'value',
+            # color = 'value'
+            color=alt.condition(alt.datum.value == MAX_BodyMass,
+                                alt.value('#FF3333'),
+                                alt.value('#FFCC00'))
         )
 
         chartBodyMass.title = "Body Weight"
