@@ -5,8 +5,12 @@ import streamlit as st
 import altair as alt
 import numpy as np
 import tensorflow as tf
+
+
 class Workout(BaseHandler):
 
+
+    @st.cache
     def load_from_csv(self, df):
         try:
             _df = create_dataframe_with_initial_columns(df)
@@ -33,9 +37,11 @@ class Workout(BaseHandler):
             return result
 
         cats = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
         """
-        전체 oVERALL
+        전체 OVERALL
         """
+
         overall = Workout[['duration', 'workoutActivityType', 'totalEnergyBurned', 'date']]  # .query('duration>0')
         overall['date'] = pd.to_datetime(overall['date'])
         overall['date'] = overall['date'].astype(str)

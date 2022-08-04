@@ -5,10 +5,10 @@ import streamlit as st
 import altair as alt
 import os
 
+
 def gen_file_path(dir):
     parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
     file_name = f"rawdata/{dir}.csv"
-
     res = os.path.join(parent, file_name)
     print("res", res)
     return os.path.join(parent, file_name)
@@ -74,7 +74,7 @@ class BodySpec(BaseHandler):
         :param BasalEnergyBurned: 기초대사량
         :return:
         """
-        st.title("profile")
+        st.title("Profile")
         st.markdown("***")
         valBodyMass = BodyMass[BodyMass.dttm == BodyMass.dttm.max()]
         valBodyMass = valBodyMass.iloc[0]['value']
@@ -83,6 +83,8 @@ class BodySpec(BaseHandler):
         BMI = valBodyMass / (Height * Height / 10000)
         st.title(f'몸무게: {valBodyMass}')
         st.title(f'키: {Height}')
+
+        barometer = Height - 110 # BMI기준 평균 몸무게
 
         BMI = round(BMI, 1)
         # 결과 출력 20미만이면 저체중, 20~24 사이면 정상, 25~29는 과체중, 30 이상이면 비만
@@ -106,15 +108,15 @@ class BodySpec(BaseHandler):
             x='date',
             y='value',
             size='value',
-            color=alt.condition(alt.datum.value > 80,
+            color=alt.condition(alt.datum.value > barometer,
                                 alt.value('red'),
                                 alt.value('black'))
         )
 
         chartBodyMass.title = "Body Weight"
         chartBodyMass.encoding.x.title = "timeline"
-        chartBodyMass.encoding.y.title = "Weight (kg)"
-        cols[0].title("Wights")
+        chartBodyMass.encoding.y.title = "Weight(kg)"
+        cols[0].title("Weight")
         cols[0].altair_chart(chartBodyMass, use_container_width=True)
 
 
@@ -130,7 +132,7 @@ class BodySpec(BaseHandler):
         ).properties(width=50, height=250).add_selection(brush)
 
 
-        cols[0].title("Headphone volumes")
+        cols[0].title("Audio Volume")
         moving_average_value = cols[0].slider("이동평균값", 0, 100, 10)
         HeadphoneAudioExposure['mv_avg'] = HeadphoneAudioExposure['value'].rolling(window=moving_average_value).mean()
         HeadphoneAudioExposure['dbspl_norm'] = HeadphoneAudioExposure.apply(lambda x: dbspl_norm(x["mv_avg"]),axis=1)
@@ -143,5 +145,5 @@ class BodySpec(BaseHandler):
         )
 
         cols[0].altair_chart(HeadphoneAudioExposure_chart, use_container_width=True)
-        cols[0].title("기기별 평균 음량")
+        cols[0].title("요일별 평균 음량")
         cols[0].altair_chart(week_HeadphoneAudioExposure_chart, use_container_width=False)

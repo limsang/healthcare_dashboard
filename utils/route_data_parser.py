@@ -23,7 +23,7 @@ def gen_file_path(dir):
     상위경로에서 data/~를 가져오도록
     """
     try:
-        file_name = f"data/{dir}.csv"
+        file_name = f"rawdata/{dir}.csv"
         res = os.path.join(os.path.dirname(__file__), file_name)
         return res
 
@@ -126,10 +126,10 @@ class RouteDataExtractor(object):
         return df
 
 
-if __name__ == '__main__':
-    data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/*')
-    # data_dir = gen_file_path("data/workout-routes/*")
-    print("data_dir", data_dir)
-    handler = RouteDataExtractor(data_dir)
-    handler.loop_genDF()
+# if __name__ == '__main__':
+#     data_dir = os.path.join(ROOT_DIRECTORY, 'data/workout-routes/*')
+#     # data_dir = gen_file_path("data/workout-routes/*")
+#     print("data_dir", data_dir)
+#     handler = RouteDataExtractor(data_dir)
+#     handler.loop_genDF()
 

@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from datetime import datetime
 from folium.plugins import HeatMap
 import folium
@@ -7,10 +6,9 @@ from streamlit_folium import folium_static
 from dotenv import load_dotenv # python-dotenv
 import os
 from utils.route_data_parser import RouteDataExtractor
-# ROOT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))  # 상위 디렉토리
 from DFhandler.outdoor_route import OutdoorRoute
-
 import pytz
+
 convert_tz = lambda x: x.to_pydatetime().replace(tzinfo=pytz.utc).astimezone(pytz.timezone('Asia/Seoul'))
 get_hour = lambda x: '{}-{:02}-{:02} {:02}:{:02}'.format(convert_tz(x).year, convert_tz(x).month, convert_tz(x).day, convert_tz(x).hour, convert_tz(x).min) #inefficient
 
@@ -20,16 +18,15 @@ def geo_workout(conf):
     outdoor_Route_HANDLER = OutdoorRoute()
     st.markdown("***")
 
-    data_dir = os.path.join(os.path.dirname(__file__),  conf.path['data']['outdoor_route_data'])
-
+    data_dir = os.path.join(os.path.abspath(""),  conf.path['data']['outdoor_route_data'])
     if os.path.isfile(data_dir):
-       pass
+        pass
+
     else:
         # 파일 생성하고갈게요
-        raw_data_dir = os.path.join(os.path.dirname(__file__), conf.path['data']['raw_outdoor_route_data'])
+        raw_data_dir = os.path.join(os.path.abspath(""), conf.path['data']['raw_outdoor_route_data'])
         RouteDE = RouteDataExtractor(raw_data_dir)
         RouteDE.loop_genDF()
-
 
     travel_data = outdoor_Route_HANDLER.load_from_csv(data_dir)
     travel_data = outdoor_Route_HANDLER.preproc(travel_data)
@@ -71,9 +68,7 @@ def geo_workout(conf):
         heat_df = heat_df.dropna(axis=0, subset=["latitude", "longitude"])
 
         # List comprehension to make list of lists
-        heat_data = [
-            [row["latitude"], row["longitude"]] for index, row in heat_df.iterrows()
-        ]
+        heat_data = [[row["latitude"], row["longitude"]] for index, row in heat_df.iterrows()]
 
         # Plot it on the map
         HeatMap(heat_data).add_to(map_heatmap)

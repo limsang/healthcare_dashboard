@@ -6,8 +6,8 @@
       "ActiveEnergyBurned.csv", "HeadphoneAudioExposure.csv", "WalkingDoubleSupportPercentage.csv", "FlightsClimbed.csv", "SleepAnalysis.csv", "ActivitySummary.csv","AppleStandTime.csv"]
     ,
 
-    "outdoor_route_data": "data/workout-routes/stacked_route_data.csv",
-    "raw_outdoor_route_data": "data/workout-routes/*",
+    "outdoor_route_data": "rawdata/workout-routes/stacked_route_data.csv",
+    "raw_outdoor_route_data": "rawdata/workout-routes/*",
 
     "bodyspec_list": ["BodyMass","V02Max","Height" ,"RestingHeartRate", "BasalEnergyBurned"]
   },
