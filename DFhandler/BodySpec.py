@@ -104,9 +104,13 @@ class BodySpec(BaseHandler):
 
         cols = st.columns(2)
 
+        MAX_BodyMass = BodyMass['value'].max()
+        MIN_BodyMass = BodyMass['value'].min()
+
         chartBodyMass = alt.Chart(BodyMass.query('type=="BodyMass"')).mark_circle(opacity=0.9).encode(
             x='date',
-            y='value',
+            # y= 'value', scale=alt.Scale(domain=[0, 120])),
+            y = alt.Y('value', scale=alt.Scale(domain=[MIN_BodyMass, MAX_BodyMass + 10])),
             size='value',
             color=alt.condition(alt.datum.value > barometer,
                                 alt.value('red'),
