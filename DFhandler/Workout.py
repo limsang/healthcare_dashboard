@@ -357,14 +357,19 @@ class Workout(BaseHandler):
         요일별 gym
         """
 
-        SeasonWorkout = SeasonWorkout[['duration', 'season']]
-        SeasonWorkout_chart = alt.Chart(SeasonWorkout).mark_line(point=True, color="#FFAA00").encode(
-            alt.X('season', scale=alt.Scale(zero=False),
-                  sort=['spring','summer','fall','winter'], axis=alt.Axis(title=None, labelAngle=0)),
-            alt.Y('duration', scale=alt.Scale(zero=False))
-        )
+        base = alt.Chart(SeasonWorkout).encode(x=alt.X('season', axis=alt.Axis(title=None, labelAngle=0)))
+        area = base.mark_line(stroke='red', interpolate='monotone').encode(
+            alt.Y('duration',
+                  scale=alt.Scale(domain=[SeasonWorkout['duration'].min(),
+                                          SeasonWorkout['duration'].max() + 10]),
+                  axis=alt.Axis(title='duration', titleColor='red')))
 
-        SeasonWorkout_chart.title = "계절별 운동시간"
-        SeasonWorkout_chart.encoding.x.title = "season"
-        SeasonWorkout_chart.encoding.y.title = "duration(min)"
+        line = base.mark_line(stroke='blue', interpolate='monotone').encode(
+            alt.Y('totalEnergyBurned',
+                  scale=alt.Scale(domain=[SeasonWorkout['totalEnergyBurned'].min(),
+                                          SeasonWorkout['totalEnergyBurned'].max() + 10]),
+                  axis=alt.Axis(title='totalEnergyBurned', titleColor='blue')))
+
+        SeasonWorkout_chart = alt.layer(area, line).resolve_scale(y='independent')
+        SeasonWorkout_chart.title = "계절별 운동 시간 및 강도"
         st.altair_chart(SeasonWorkout_chart, use_container_width=True)
